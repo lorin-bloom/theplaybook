@@ -83,7 +83,6 @@ export function PlaybookForm() {
         {busy ? "Starting…" : "Make my playbook"}
         {!busy && <ArrowRight className="size-5 transition group-hover:translate-x-0.5" />}
       </button>
-      <p className="text-center text-sm text-slate-500">No sign-up. No complicated setup.</p>
     </form>
   );
 }
