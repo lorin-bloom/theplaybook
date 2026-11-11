@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local data
+.data/
+
+# local-only notes containing dev passwords
+docs/dev-test-account.md
+!.env.example

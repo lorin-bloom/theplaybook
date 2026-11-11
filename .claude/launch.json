@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "gtm-dev-mock",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "port": 3000,
+      "env": { "AI_MODE": "mock", "RESEARCH_PROVIDER": "none" }
+    }
+  ]
+}
