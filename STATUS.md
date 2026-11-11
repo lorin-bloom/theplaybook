@@ -2,6 +2,12 @@
 
 _Last updated: 2026-11-11._
 
+## Live
+- **Production:** https://theplaybook-ecru.vercel.app (Vercel project `lorin4/theplaybook`, Neon Postgres via the Vercel Marketplace).
+- GitHub: https://github.com/lorin-bloom/theplaybook (main). Deploy with `npx vercel deploy --prod` from this folder; GitHub auto-deploy isn't connected yet (needs the Vercel GitHub app).
+- Production env: DATABASE_URL (Neon), ANTHROPIC_API_KEY, HASH_SALT, MONTHLY_BUDGET_USD=10. No TAVILY_API_KEY (research uses Claude web search) and no ADMIN_PASSWORD (/admin is off by choice).
+- Verified 2026-11-11: a Linear playbook generated on production in under a minute, with all 7 sections and 9 thumbnails.
+
 ## What it is now
 The project was rebuilt at the user's request: GTM Intelligence became **"The Playbook"**.
 - A public, no-sign-up tool: one form → one visual, seven-section report at `/p/[id]`.
