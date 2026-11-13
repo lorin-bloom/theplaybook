@@ -13,8 +13,7 @@ import { ogImageFromHtml, youtubeThumbnail } from "@/lib/playbook/thumbnails";
 import { playbookToMarkdown } from "@/lib/playbook/markdown";
 import { BudgetExceededError } from "@/lib/cost/budget";
 import { newId } from "@/lib/util/hash";
-import { fakeClient, freshDb, searchMessage, toolMessage, waitForPlaybook } from "./helpers/setup";
-import { toolInputSchema } from "@/lib/ai/client";
+import { fakeClient, freshDb, searchMessage, textMessage, waitForPlaybook } from "./helpers/setup";
 
 const inputs = (over: Partial<PlaybookInputs> = {}): PlaybookInputs => ({
   product: "Acme Insights",
@@ -26,7 +25,7 @@ const inputs = (over: Partial<PlaybookInputs> = {}): PlaybookInputs => ({
 
 let n = 0;
 const visitor = () => `v${++n}`;
-/** Research calls carry the web_search tool; the writing call carries write_playbook. */
+/** Research calls carry the web_search tool; the writing call has no tools. */
 const isSearch = (c: Record<string, unknown>) => JSON.stringify(c.tools ?? []).includes("web_search");
 
 beforeEach(async () => {
@@ -158,7 +157,7 @@ describe("live path with a fake Anthropic client", () => {
     const report = mockPlaybook(inputs());
     report.channels[0].exampleRef = "S1";
     report.channels[1].exampleRef = "S999"; // invented
-    const fake = fakeClient((params) => (isSearch(params) ? searchMessage("https://acme.example/case", "Acme cut close time by 3 days.") : toolMessage(report)));
+    const fake = fakeClient((params) => (isSearch(params) ? searchMessage("https://acme.example/case", "Acme cut close time by 3 days.") : textMessage(report)));
     setAnthropicClientForTests(fake.client);
 
     const { id } = await createPlaybook(inputs(), [], visitor());
@@ -169,12 +168,9 @@ describe("live path with a fake Anthropic client", () => {
     const writing = fake.calls.filter((c) => !isSearch(c));
     expect(research.map((c) => c.model)).toEqual(["claude-haiku-5-5", "claude-haiku-5-5"]);
     expect(writing.map((c) => c.model)).toEqual(["claude-sonnet-5-5"]);
-    // The 7-section schema exceeds the strict-grammar limit, so the result comes back through a tool call.
+    // The 7-section schema exceeds the strict-grammar limit, so the shape is described in the prompt.
     expect((writing[0].output_config as Record<string, unknown>).format).toBeUndefined();
-    expect((writing[0].tools as { name: string }[]).map((t) => t.name)).toEqual(["write_playbook"]);
-    expect(writing[0].tool_choice).toEqual({ type: "auto" });
-    // Eager input streaming passed malformed nested arguments through in production; it must stay off.
-    expect(JSON.stringify(writing[0].tools)).not.toContain("eager_input_streaming");
+    expect(writing[0].tools).toBeUndefined();
     expect(JSON.stringify(research)).not.toContain("SECRET"); // private text never sent to search
     expect(JSON.stringify((research[0].tools as unknown[])[0])).toContain("web_search_20250305");
 
@@ -191,7 +187,7 @@ describe("live path with a fake Anthropic client", () => {
 
   it("reuses cached research across different playbooks for the same product", async () => {
     liveEnv();
-    const fake = fakeClient((params) => (isSearch(params) ? searchMessage("https://acme.example/a", "Quote.") : toolMessage(mockPlaybook(inputs()))));
+    const fake = fakeClient((params) => (isSearch(params) ? searchMessage("https://acme.example/a", "Quote.") : textMessage(mockPlaybook(inputs()))));
     setAnthropicClientForTests(fake.client);
     await waitForPlaybook((await createPlaybook(inputs({ goal: "Goal A" }), [], visitor())).id);
     await waitForPlaybook((await createPlaybook(inputs({ goal: "Goal B" }), [], visitor())).id);
@@ -202,7 +198,7 @@ describe("live path with a fake Anthropic client", () => {
   it("never makes the paid writing call once the budget is exhausted", async () => {
     liveEnv();
     vi.stubEnv("MONTHLY_BUDGET_USD", "0.25");
-    const fake = fakeClient((params) => (isSearch(params) ? searchMessage("https://acme.example/b", "Q.") : toolMessage(mockPlaybook(inputs()))));
+    const fake = fakeClient((params) => (isSearch(params) ? searchMessage("https://acme.example/b", "Q.") : textMessage(mockPlaybook(inputs()))));
     setAnthropicClientForTests(fake.client);
     const { id } = await createPlaybook(inputs(), [], visitor());
     const db = await getDb();
@@ -224,20 +220,9 @@ describe("live path with a fake Anthropic client", () => {
     expect(p.report!.channels[0].mock.kind).toBe("social_post");
   });
 
-  it("unpacks nested sections the model sends as JSON strings", async () => {
-    liveEnv();
-    const report = mockPlaybook(inputs()) as unknown as Record<string, unknown>;
-    const stringified = Object.fromEntries(Object.entries(report).map(([k, v]) => [k, typeof v === "object" ? JSON.stringify(v) : v]));
-    const fake = fakeClient((params) => (isSearch(params) ? searchMessage("https://acme.example/s", "Q.") : toolMessage(stringified)));
-    setAnthropicClientForTests(fake.client);
-    const p = await waitForPlaybook((await createPlaybook(inputs({ goal: "Stringified" }), [], visitor())).id);
-    expect(p.status).toBe("done");
-    expect(p.report!.channels).toHaveLength(3);
-  });
-
   it("works from just a product name", async () => {
     liveEnv();
-    const fake = fakeClient((params) => (isSearch(params) ? searchMessage("https://dots.example/a", "Q.") : toolMessage(mockPlaybook(inputs()))));
+    const fake = fakeClient((params) => (isSearch(params) ? searchMessage("https://dots.example/a", "Q.") : textMessage(mockPlaybook(inputs()))));
     setAnthropicClientForTests(fake.client);
     const p = await waitForPlaybook((await createPlaybook({ product: "ChatGPT Dots", about: "", audience: "", goal: "" }, [], visitor())).id);
     expect(p.status).toBe("done");
@@ -245,15 +230,28 @@ describe("live path with a fake Anthropic client", () => {
     expect(JSON.stringify(writing.messages)).toContain("not specified");
   });
 
-  it("fails clearly (and logs the reply) if the model answers in prose instead", async () => {
+  it("retries once when a reply can't be read, then succeeds", async () => {
     liveEnv();
     const errors = vi.spyOn(console, "error").mockImplementation(() => {});
-    const fake = fakeClient((params) => (isSearch(params) ? searchMessage("https://acme.example/p", "Q.") : { content: [{ type: "text", text: "Could you tell me more about the product?" }] }));
+    let writes = 0;
+    const fake = fakeClient((params) => (isSearch(params) ? searchMessage("https://acme.example/r", "Q.") : ++writes === 1 ? { content: [{ type: "text", text: "Could you tell me more about the product?" }] } : textMessage(mockPlaybook(inputs()))));
+    setAnthropicClientForTests(fake.client);
+    const p = await waitForPlaybook((await createPlaybook(inputs({ goal: "Retry" }), [], visitor())).id);
+    expect(p.status).toBe("done");
+    expect(writes).toBe(2);
+    expect(errors.mock.calls.flat().join(" ")).toContain("Could you tell me more");
+    errors.mockRestore();
+  });
+
+  it("gives up after one retry with a clear message", async () => {
+    liveEnv();
+    const errors = vi.spyOn(console, "error").mockImplementation(() => {});
+    const fake = fakeClient((params) => (isSearch(params) ? searchMessage("https://acme.example/p", "Q.") : { content: [{ type: "text", text: "No." }] }));
     setAnthropicClientForTests(fake.client);
     const p = await waitForPlaybook((await createPlaybook(inputs({ goal: "Prose" }), [], visitor())).id);
     expect(p.status).toBe("error");
     expect(p.error).toMatch(/unexpected format/);
-    expect(errors.mock.calls.flat().join(" ")).toContain("Could you tell me more");
+    expect(fake.calls.filter((c) => !isSearch(c))).toHaveLength(2);
     errors.mockRestore();
   });
 
@@ -261,15 +259,6 @@ describe("live path with a fake Anthropic client", () => {
     expect(friendlyError(new BudgetExceededError())).toMatch(/usage limit/);
     expect(friendlyError(Object.assign(new Error("x"), { status: 429 }))).toMatch(/busy/);
     expect(friendlyError(Object.assign(new Error("x"), { status: 503 }))).toMatch(/temporary/);
-  });
-});
-
-describe("tool schema", () => {
-  it("derives a permissive JSON Schema for the write_playbook tool", () => {
-    const schema = toolInputSchema(PlaybookReport) as { type: string; properties: Record<string, unknown>; $schema?: string };
-    expect(schema.type).toBe("object");
-    expect(Object.keys(schema.properties)).toEqual(expect.arrayContaining(["opportunity", "positioning", "bigIdea", "channels", "collaborators", "story", "gamePlan"]));
-    expect(schema.$schema).toBeUndefined();
   });
 });
 

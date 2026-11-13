@@ -41,11 +41,6 @@ export function fakeClient(respond: (params: Record<string, unknown>) => FakeMes
 
 export const textMessage = (obj: unknown): FakeMessage => ({ content: [{ type: "text", text: JSON.stringify(obj) }] });
 
-/** The model handing a result over through the write_playbook tool. */
-export const toolMessage = (input: unknown, name = "write_playbook"): FakeMessage => ({
-  content: [{ type: "tool_use", id: "toolu_1", name, input }],
-  stop_reason: "tool_use",
-});
 
 export const searchMessage = (url: string, quote: string): FakeMessage => ({
   content: [

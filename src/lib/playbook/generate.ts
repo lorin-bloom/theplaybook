@@ -113,10 +113,8 @@ export async function runPipeline(id: string, inputs: PlaybookInputs, docs: Uplo
       maxTokens: 16_000,
       expectedOutputTokens: 4_000,
       mock: () => mockPlaybook(inputs),
-      // The 7-section schema is too large for strict structured outputs; a tool call
-      // still guarantees valid JSON (and keeps this to a single call).
-      jsonMode: "tool",
-      toolName: "write_playbook",
+      // The 7-section schema is too large for strict structured outputs (see client.ts).
+      jsonMode: "prompt",
     });
     const { content: report } = enforceProvenance(res.data, sources.map((s) => s.ref));
 
