@@ -124,6 +124,14 @@ describe("wallet protection", () => {
     await expect(createPlaybook(inputs({ product: "One" }), [], v)).resolves.toMatchObject({ reused: true });
   });
 
+  it("doesn't count failed playbooks against a visitor's daily allowance", async () => {
+    vi.stubEnv("PLAYBOOKS_PER_VISITOR_PER_DAY", "1");
+    const v = visitor();
+    const db = await getDb();
+    await db.insert(schema.playbooks).values({ id: "failedone1", inputHash: "x", inputs: inputs(), status: "error", visitor: v });
+    await expect(createPlaybook(inputs({ product: "After a failure" }), [], v)).resolves.toBeTruthy();
+  });
+
   it("caps total playbooks per day", async () => {
     vi.stubEnv("PLAYBOOKS_PER_DAY", "1");
     await createPlaybook(inputs({ product: "First" }), [], visitor());
