@@ -52,7 +52,6 @@ export function Board({ id, report: r, sources, thumbnails, isExample, mode }: P
             <div className="grid gap-6 lg:grid-cols-[1.2fr_1fr] lg:items-center">
               <div>
                 <p className="font-serif text-3xl leading-tight text-ink sm:text-4xl">“{r.positioning.valueProposition}”</p>
-                <p className="mt-3 text-slate-600"><span className="font-semibold text-ink">Only we: </span>{r.positioning.differentiator}</p>
               </div>
               <ol className="space-y-2">
                 {r.positioning.pillars.slice(0, 3).map((p, i) => (
@@ -64,6 +63,7 @@ export function Board({ id, report: r, sources, thumbnails, isExample, mode }: P
               </ol>
             </div>
             <More>
+              <Fact label="Only we">{r.positioning.differentiator}</Fact>
               <Evidence claims={r.positioning.proof} byRef={byRef} />
             </More>
           </Card>
@@ -74,19 +74,18 @@ export function Board({ id, report: r, sources, thumbnails, isExample, mode }: P
               <div>
                 <p className="font-serif text-5xl leading-none tracking-tight text-ink sm:text-6xl">{r.bigIdea.campaignName}</p>
                 <p className="mt-4 text-xl font-medium text-ink/80">{r.bigIdea.hook}</p>
-                <p className="mt-3 max-w-xl text-slate-700">{r.bigIdea.concept}</p>
-                {src(r.bigIdea.inspirationRef)?.url && (
-                  <div className="mt-5 max-w-sm">
-                    <LinkPreview url={src(r.bigIdea.inspirationRef)!.url!} title={src(r.bigIdea.inspirationRef)!.title} thumb={thumbnails[src(r.bigIdea.inspirationRef)!.url!]} label="Inspiration" />
-                    <p className="mt-1.5 text-xs text-slate-600">{r.bigIdea.inspirationNote}</p>
-                  </div>
-                )}
               </div>
               <Poster example={r.bigIdea.example} brand={r.productName} />
             </div>
             <More>
-              <Fact label="Look & feel">{r.bigIdea.visualDirection}</Fact>
+              <Fact label="The idea">{r.bigIdea.concept}</Fact>
               <Fact label="Why it works">{r.bigIdea.whyItWorks}</Fact>
+              {src(r.bigIdea.inspirationRef)?.url && (
+                <div className="max-w-sm">
+                  <LinkPreview url={src(r.bigIdea.inspirationRef)!.url!} title={src(r.bigIdea.inspirationRef)!.title} thumb={thumbnails[src(r.bigIdea.inspirationRef)!.url!]} label="Inspiration" />
+                  <p className="mt-1.5 text-xs text-slate-600">{r.bigIdea.inspirationNote}</p>
+                </div>
+              )}
               <Steps items={r.bigIdea.steps} />
             </More>
           </Card>
@@ -103,23 +102,23 @@ export function Board({ id, report: r, sources, thumbnails, isExample, mode }: P
                       <span className="text-lg font-semibold">{c.platform}</span>
                     </div>
                     <p className="mt-1 text-sm text-slate-600">{c.tactic}</p>
-                    <div className="mt-3 flex flex-wrap gap-1.5 text-[11px]">
-                      <Tag>{c.format}</Tag>
-                      <Tag>{c.cadence}</Tag>
-                      <Tag>For: {c.audience}</Tag>
-                    </div>
                     <div className="mt-4"><MockCreative mock={c.mock} brand={r.productName} platform={c.platform} /></div>
-                    {ex?.url && (
-                      <div className="mt-3">
-                        <LinkPreview url={ex.url} title={ex.title} thumb={thumbnails[ex.url]} />
-                        <p className="mt-1 text-xs text-slate-500">{c.exampleNote}</p>
-                      </div>
-                    )}
                     <details className="group mt-auto pt-3">
                       <summary className="cursor-pointer list-none text-sm font-medium text-indigo-700"><span className="group-open:hidden">How to run it →</span><span className="hidden group-open:inline">Hide</span></summary>
                       <div className="mt-2 space-y-2 text-sm">
+                        <div className="flex flex-wrap gap-1.5 text-[11px]">
+                          <Tag>{c.format}</Tag>
+                          <Tag>{c.cadence}</Tag>
+                          <Tag>For: {c.audience}</Tag>
+                        </div>
                         <Steps items={c.steps} />
                         <p className="text-xs text-slate-500">Measure: {c.kpi}</p>
+                        {ex?.url && (
+                          <div>
+                            <LinkPreview url={ex.url} title={ex.title} thumb={thumbnails[ex.url]} />
+                            <p className="mt-1 text-xs text-slate-500">{c.exampleNote}</p>
+                          </div>
+                        )}
                       </div>
                     </details>
                   </div>
@@ -139,9 +138,12 @@ export function Board({ id, report: r, sources, thumbnails, isExample, mode }: P
                       <span className="font-semibold">{c.name}</span>
                       <span className="rounded-full bg-white px-2 py-0.5 text-[11px] font-medium capitalize text-slate-600 ring-1 ring-line">{c.type}</span>
                     </div>
-                    <p className="mt-1 text-sm text-slate-600">{c.why}</p>
-                    <p className="mt-2 text-sm"><span className="font-medium">The ask: </span>{c.activation}</p>
-                    {s?.url && <div className="mt-2"><LinkPreview url={s.url} title={s.title} thumb={thumbnails[s.url]} label="Why them" /></div>}
+                    <p className="mt-1 text-sm text-slate-600" title={c.why}>{c.activation}</p>
+                    {s?.url && (
+                      <a href={s.url} target="_blank" rel="noopener noreferrer nofollow" className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-indigo-700 hover:underline">
+                        {new URL(s.url).hostname.replace(/^www\./, "")} <ArrowUpRight className="size-3" />
+                      </a>
+                    )}
                   </li>
                 );
               })}
@@ -155,21 +157,24 @@ export function Board({ id, report: r, sources, thumbnails, isExample, mode }: P
               <p className="mt-2 font-serif text-2xl leading-tight">{r.story.sampleHeadline}</p>
             </div>
             <p className="mt-4 font-semibold">{r.story.angle}</p>
-            <p className="mt-1 text-sm text-slate-600">{r.story.whyInteresting}</p>
-            <div className="mt-4 space-y-2">
-              {r.story.opportunities.slice(0, 3).map((o, i) => {
-                const s = src(o.sourceRef);
-                return s?.url ? (
-                  <div key={i}>
-                    <LinkPreview url={s.url} title={`${o.outlet} — ${s.title}`} thumb={thumbnails[s.url]} label="Media opportunity" />
-                    <p className="mt-1 text-xs text-slate-500">{o.why}</p>
-                  </div>
-                ) : (
-                  <div key={i} className="rounded-xl bg-[#f6f5f1] p-3 text-sm"><span className="font-medium">{o.outlet}</span> <span className="text-slate-600">— {o.why}</span></div>
-                );
-              })}
-            </div>
+            {r.story.opportunities.length > 0 && (
+              <div className="mt-4">
+                <Label>Pitch to</Label>
+                <div className="flex flex-wrap gap-1.5">
+                  {r.story.opportunities.slice(0, 3).map((o, i) => {
+                    const s = src(o.sourceRef);
+                    const cls = "inline-flex items-center gap-1 rounded-full bg-[#f6f5f1] px-3 py-1 text-sm";
+                    return s?.url ? (
+                      <a key={i} href={s.url} target="_blank" rel="noopener noreferrer nofollow" title={o.why} className={cx(cls, "hover:bg-slate-200")}>{o.outlet} <ArrowUpRight className="size-3" /></a>
+                    ) : (
+                      <span key={i} title={o.why} className={cls}>{o.outlet}</span>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
             <More>
+              <Fact label="Why people will care">{r.story.whyInteresting}</Fact>
               {r.story.risks.length > 0 && <Fact label="Watch out for"><Bullets items={r.story.risks} /></Fact>}
               <Evidence claims={r.story.evidence} byRef={byRef} />
             </More>
@@ -184,7 +189,7 @@ export function Board({ id, report: r, sources, thumbnails, isExample, mode }: P
                   {r.gamePlan.actions.slice(0, 3).map((a, i) => (
                     <li key={i} className="flex gap-3">
                       <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-indigo-500 text-xs font-bold">{i + 1}</span>
-                      <span><span className="font-medium">{a.action}</span><span className="block text-sm text-white/60">{a.why}</span></span>
+                      <span className="font-medium">{a.action}</span>
                     </li>
                   ))}
                 </ol>

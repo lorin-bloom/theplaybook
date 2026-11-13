@@ -31,9 +31,9 @@ export function planQueries(inputs: Pick<PlaybookInputs, "product" | "audience">
     {
       topic: "market",
       label: "Researching the market",
-      instruction: `Facts about ${product}: what it is, who makes it, features, pricing, and its main competitors. Also the biggest problems ${who} face. Prefer official and reputable sources.`,
-      queries: [`${product} what it is pricing`, `${product} competitors`, `${who} biggest challenges`],
-      maxUses: 2,
+      instruction: `Facts about ${product}: what it is, who makes it, features, pricing, and its main competitors. Also how the company behind ${product} usually launches products — launch events or livestreams, staged rollouts, waitlists, early access for creators or press, past brand campaigns — so the plan can match its real launch style and scale. Also the biggest problems ${who} face. Prefer official and reputable sources.`,
+      queries: [`${product} what it is pricing`, `${product} competitors`, `how does the company behind ${product} launch new products`],
+      maxUses: 3,
     },
     {
       topic: "examples",

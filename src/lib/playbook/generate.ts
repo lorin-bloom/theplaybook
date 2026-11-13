@@ -109,7 +109,7 @@ export function buildUserMessage(inputs: PlaybookInputs, docs: UploadedDoc[], so
       .map((s) => wrapUntrusted("source", s.ref, `${s.title} — ${s.publisher ?? ""}${s.publishedAt ? `, ${s.publishedAt}` : ""}\nurl: ${s.url}\n${s.excerpt}`))
       .join("\n");
   const research = [
-    ["market", "Market & product facts — use ONLY as evidence (never as exampleRef, inspirationRef, collaborator or media links)"],
+    ["market", "Market & product facts, and how the company usually launches — use as evidence and to set the launch style and scale (never as exampleRef, inspirationRef, collaborator or media links)"],
     ["examples", "Competitor & adjacent-brand marketing — the ONLY valid exampleRef / inspirationRef sources"],
     ["people", "Independent creators, podcasts, newsletters, communities & publications — use for collaborators and media opportunities"],
   ]
