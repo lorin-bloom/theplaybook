@@ -102,4 +102,6 @@ export type PlaybookSource = {
   excerpt: string;
   origin: "public" | "upload" | "example";
   topic: string;
+  /** The page is about the product or its brand family (facts only; never shown in Story). */
+  aboutProduct?: boolean;
 };

@@ -35,13 +35,19 @@ export function inputHash(inputs: PlaybookInputs, docs: UploadedDoc[]) {
  */
 export function enforceLinkPurpose(report: PlaybookReport, sources: PlaybookSource[]): PlaybookReport {
   const topic = new Map(sources.map((s) => [s.ref, s.topic]));
-  const allow = (ref: string | null, topics: string[]) => (ref && topics.includes(topic.get(ref) ?? "") ? ref : null);
+  const about = new Set(sources.filter((s) => s.aboutProduct).map((s) => s.ref));
+  const allow = (ref: string | null, topics: string[]) => (ref && topics.includes(topic.get(ref) ?? "") && !about.has(ref) ? ref : null);
+  // The PR plan comes before any coverage exists: its evidence can't cite existing coverage of the product.
+  const storyEvidence = report.story.evidence.map((c) => {
+    const refs = c.sourceRefs.filter((r) => !about.has(r));
+    return { ...c, sourceRefs: refs, status: refs.length ? c.status : ("hypothesis" as const) };
+  });
   return {
     ...report,
     bigIdea: { ...report.bigIdea, inspirationRef: allow(report.bigIdea.inspirationRef, ["examples"]) },
     channels: report.channels.map((c) => ({ ...c, exampleRef: allow(c.exampleRef, ["examples"]) })),
     collaborators: report.collaborators.map((c) => ({ ...c, sourceRefs: c.sourceRefs.filter((r) => allow(r, ["people", "examples"])) })),
-    story: { ...report.story, opportunities: report.story.opportunities.map((o) => ({ ...o, sourceRef: allow(o.sourceRef, ["people"]) })) },
+    story: { ...report.story, evidence: storyEvidence, opportunities: report.story.opportunities.map((o) => ({ ...o, sourceRef: allow(o.sourceRef, ["people"]) })) },
   };
 }
 

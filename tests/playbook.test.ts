@@ -86,6 +86,11 @@ describe("pre-launch link rules", () => {
     expect(isAboutProduct({ title: "Guide", url: "https://site.com/blog/chatgpt-dots-alternatives" }, "ChatGPT Dots")).toBe(true);
     expect(isAboutProduct({ title: "Anthropic launches Keep thinking", url: "https://axios.com/claude" }, "ChatGPT Dots")).toBe(false);
     expect(isAboutProduct({ title: "Lenny's Podcast", url: "https://lennys.example" }, "Linear")).toBe(false);
+    // Brand family counts too: OpenAI's own ChatGPT campaign is not a competitor example for ChatGPT Dots.
+    expect(isAboutProduct({ title: "OpenAI's first major ChatGPT brand campaign", url: "https://thedrum.com/news/x" }, "ChatGPT Dots")).toBe(true);
+    expect(isAboutProduct({ title: "OpenAI takes on Meta's Muse with new Dot agents", url: "https://fortune.com/x" }, "ChatGPT Dots")).toBe(true);
+    // Generic words don't count: a Google Workspace "business" campaign isn't about "ChatGPT Business".
+    expect(isAboutProduct({ title: "Google Workspace small business ads", url: "https://blog.google/x" }, "ChatGPT Business")).toBe(false);
   });
 
   it("only lets each link come from its own research bucket", () => {
@@ -100,11 +105,13 @@ describe("pre-launch link rules", () => {
     r.channels[1].exampleRef = "S3";
     r.collaborators[0].sourceRefs = ["S1", "S3"];
     r.story.opportunities[0].sourceRef = "S2";
-    const out = enforceLinkPurpose(r, sources);
+    r.story.evidence = [{ text: "Launch got press", status: "verified", sourceRefs: ["S4"] }];
+    const out = enforceLinkPurpose(r, [...(sources as unknown as object[]), { ref: "S4", topic: "market", aboutProduct: true }] as never);
     expect(out.bigIdea.inspirationRef).toBeNull();
     expect(out.channels.map((c) => c.exampleRef).slice(0, 2)).toEqual(["S2", null]);
     expect(out.collaborators[0].sourceRefs).toEqual(["S3"]);
     expect(out.story.opportunities[0].sourceRef).toBeNull();
+    expect(out.story.evidence[0]).toMatchObject({ status: "hypothesis", sourceRefs: [] }); // no existing coverage in the PR plan
   });
 
   it("the example playbook follows the same rules", async () => {

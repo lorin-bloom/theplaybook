@@ -51,14 +51,23 @@ export function planQueries(inputs: Pick<PlaybookInputs, "product" | "audience">
 
 const words = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 
-/** True when a page's title or URL is about the product itself (full name, or its distinctive last word). */
+/** Generic words that don't identify a brand ("ChatGPT Business", "Notion AI for teams"). */
+const GENERIC = new Set(["business", "team", "teams", "enterprise", "plus", "premium", "pro", "free", "for", "with", "and", "app", "apps", "studio", "cloud", "platform", "suite", "work", "labs", "online", "mobile", "sales", "marketing"]);
+
+/**
+ * True when a page's title or URL is about the product or its brand family:
+ * the full name, or a distinctive word of it (e.g. "ChatGPT" or "Dots" in "ChatGPT Dots").
+ */
 export function isAboutProduct(hit: Pick<SearchHit, "title" | "url">, product: string): boolean {
   const hay = ` ${words(`${hit.title} ${hit.url}`)} `;
   const name = words(product);
   if (!name) return false;
   if (hay.includes(` ${name} `) || hay.includes(` ${name.replace(/ /g, "")} `)) return true;
-  const last = name.split(" ").pop()!;
-  return name.includes(" ") && last.length >= 4 && hay.includes(` ${last} `);
+  const parts = name.split(" ");
+  const distinctive = [...new Set([parts[0], parts[parts.length - 1]])].filter((w) => w.length >= 4 && !GENERIC.has(w));
+  // Singular/plural too: "Dots" also matches "dot agents".
+  const forms = distinctive.flatMap((w) => [w, w.endsWith("s") ? w.slice(0, -1) : `${w}s`]);
+  return forms.some((w) => hay.includes(` ${w} `));
 }
 
 const normalizeUrl = (u: string) => u.replace(/#.*$/, "").replace(/[?&]utm_[^&]+/g, "").replace(/\/$/, "");
@@ -71,7 +80,7 @@ export async function research(inputs: PlaybookInputs, playbookId: string | null
   if (cfg.researchProvider === "none") return { sources: [], limitations: ["Web research is not configured; the playbook relies on your description."] };
 
   const db = await getDb();
-  const byUrl = new Map<string, SearchHit & { topic: ResearchTopicKey }>();
+  const byUrl = new Map<string, SearchHit & { topic: ResearchTopicKey; aboutProduct: boolean }>();
   for (const t of planQueries(inputs)) {
     await log(t.label);
     const key = hashOf({ provider: cfg.researchProvider, topic: t.topic, instruction: t.instruction, queries: t.queries, n: cfg.research.tavilyResults, u: cfg.research.anthropicMaxUses });
@@ -98,16 +107,17 @@ export async function research(inputs: PlaybookInputs, playbookId: string | null
     // Deduplicate by URL; a page keeps the topic it was first found for. Cap per topic so every bucket is represented.
     let added = 0;
     for (const h of found) {
-      // Existing coverage of the product is product knowledge, never an example or collaborator.
-      const topic: ResearchTopicKey = t.topic !== "market" && isAboutProduct(h, inputs.product) ? "market" : t.topic;
+      // Existing coverage of the product (or its brand family) is product knowledge, never an example or collaborator.
+      const aboutProduct = isAboutProduct(h, inputs.product);
+      const topic: ResearchTopicKey = aboutProduct ? "market" : t.topic;
       const k = normalizeUrl(h.url);
       const prev = byUrl.get(k);
       if (prev) {
-        if (prev.topic === topic && h.excerpt.length > prev.excerpt.length) byUrl.set(k, { ...h, topic });
+        if (prev.topic === topic && h.excerpt.length > prev.excerpt.length) byUrl.set(k, { ...h, topic, aboutProduct });
         continue;
       }
       if (added >= PER_TOPIC) continue;
-      byUrl.set(k, { ...h, topic });
+      byUrl.set(k, { ...h, topic, aboutProduct });
       added++;
     }
   }
@@ -121,6 +131,7 @@ export async function research(inputs: PlaybookInputs, playbookId: string | null
     excerpt: h.excerpt.replace(/\s+/g, " ").trim().slice(0, 450),
     origin: "public",
     topic: h.topic,
+    aboutProduct: h.aboutProduct,
   }));
   return { sources, limitations };
 }
