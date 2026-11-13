@@ -21,6 +21,8 @@ The project was rebuilt at the user's request: GTM Intelligence became **"The Pl
 - `/admin` (Basic auth via `src/middleware.ts` and `ADMIN_PASSWORD`).
 
 ## Gotchas learned live
+- Output format history (2026-11-12): strict structured outputs → "grammar too large"; tool-call output → nested sections arrived as malformed strings (with or without eager input streaming). **Use `jsonMode: "prompt"`** (shape in prompt + tolerant Zod + one retry). Product-name-only input works (verified live with "ChatGPT Dots").
+- Failed playbooks don't count toward visitor/daily caps (their cost still counts toward the monthly budget).
 - Strict structured outputs reject this schema ("compiled grammar is too large"). The playbook call uses `jsonMode: "prompt"` (shape described in the prompt) with tolerant Zod `.catch()` fallbacks.
 - `web_search_20260209` returns uncited prose. Use `web_search_20250305`, which returns citations.
 
