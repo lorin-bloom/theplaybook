@@ -29,3 +29,5 @@ The project was rebuilt at the user's request: GTM Intelligence became **"The Pl
 ## Next ideas
 - Add `TAVILY_API_KEY` (free tier) to cut cost to about $0.05 per playbook.
 - Optional: Cloudflare Turnstile on the form; add more example playbooks.
+
+- **Visitor limit lifted (2026-11-13):** production sets `PLAYBOOKS_PER_VISITOR_PER_DAY=1000`. The 40-per-day cap and `MONTHLY_BUDGET_USD` still apply. Remove the env var to restore the default of 3.
