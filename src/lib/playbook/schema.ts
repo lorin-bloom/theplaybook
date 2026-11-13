@@ -76,6 +76,16 @@ export const PlaybookReport = z.object({
     risks: z.array(z.string()),
     evidence: z.array(Claim),
   }),
+  /** The launch moment, planned as if the product hasn't launched yet. Older playbooks have none. */
+  launch: z
+    .object({
+      moment: z.string(),
+      when: z.string(),
+      hype: z.array(z.object({ when: z.string(), move: z.string() })),
+      post: z.string(),
+    })
+    .nullable()
+    .catch(null),
   gamePlan: z.object({
     actions: z.array(z.object({ action: z.string(), why: z.string() })),
     timeline: z.array(z.object({ when: z.string(), focus: z.string() })),

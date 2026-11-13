@@ -90,8 +90,36 @@ export function Board({ id, report: r, sources, thumbnails, isExample, mode }: P
             </More>
           </Card>
 
+          {/* Launch moment */}
+          {r.launch && (
+            <Card n={4} title="The Launch" question="When and how do we go live?" className="md:col-span-6 bg-gradient-to-br from-slate-900 via-indigo-950 to-indigo-800 text-white" dark>
+              <div className="grid gap-8 lg:grid-cols-[1.2fr_1fr] lg:items-center">
+                <div>
+                  <div className="text-xs font-semibold uppercase tracking-wider text-amber-300">{r.launch.when}</div>
+                  <p className="mt-2 font-serif text-3xl leading-tight sm:text-4xl">{r.launch.moment}</p>
+                  <ol className="relative mt-6 space-y-4 border-l border-white/20 pl-4">
+                    {r.launch.hype.slice(0, 3).map((h, i) => (
+                      <li key={i} className="relative">
+                        <span className="absolute -left-[21px] top-1 size-2.5 rounded-full bg-amber-300 ring-4 ring-indigo-950" />
+                        <div className="text-xs font-semibold uppercase tracking-wider text-indigo-200">{h.when}</div>
+                        <div className="text-sm">{h.move}</div>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+                <div className="mx-auto w-full max-w-sm rounded-2xl bg-white p-4 text-ink shadow-2xl">
+                  <div className="flex items-center gap-2">
+                    <span className="flex size-9 items-center justify-center rounded-full bg-ink text-xs font-bold text-white">{r.productName.slice(0, 2).toUpperCase()}</span>
+                    <div className="leading-tight"><div className="text-sm font-semibold">{r.productName}</div><div className="text-xs text-slate-500">Launch-day post</div></div>
+                  </div>
+                  <p className="mt-3 whitespace-pre-line text-[15px] leading-snug">{r.launch.post}</p>
+                </div>
+              </div>
+            </Card>
+          )}
+
           {/* 4. Where to show up */}
-          <Card n={4} title="Where to Show Up" question="Where should we distribute this, and exactly what should we do there?" className="md:col-span-6 bg-white">
+          <Card n={r.launch ? 5 : 4} title="Where to Show Up" question="Where should we distribute this, and exactly what should we do there?" className="md:col-span-6 bg-white">
             <div className="grid gap-4 lg:grid-cols-3">
               {r.channels.slice(0, 3).map((c, i) => {
                 const ex = src(c.exampleRef);
@@ -128,7 +156,7 @@ export function Board({ id, report: r, sources, thumbnails, isExample, mode }: P
           </Card>
 
           {/* 5. Collaborators */}
-          <Card n={5} title="Dream Collaborators" question="Who could help make this bigger?" className="md:col-span-3 bg-white">
+          <Card n={r.launch ? 6 : 5} title="Dream Collaborators" question="Who could help make this bigger?" className="md:col-span-3 bg-white">
             <ul className="space-y-3">
               {r.collaborators.slice(0, 3).map((c, i) => {
                 const s = src(c.sourceRefs[0]);
@@ -151,7 +179,7 @@ export function Board({ id, report: r, sources, thumbnails, isExample, mode }: P
           </Card>
 
           {/* 6. Story */}
-          <Card n={6} title="The Story Worth Telling" question="Why should anyone care or talk about this?" className="md:col-span-3 bg-white">
+          <Card n={r.launch ? 7 : 6} title="The Story Worth Telling" question="Why should anyone care or talk about this?" className="md:col-span-3 bg-white">
             <div className="rounded-2xl border-y-4 border-double border-ink/80 bg-[#fbfaf7] px-4 py-5 text-center">
               <div className="text-[10px] font-semibold uppercase tracking-[0.25em] text-slate-400">The headline we want</div>
               <p className="mt-2 font-serif text-2xl leading-tight">{r.story.sampleHeadline}</p>
@@ -181,7 +209,7 @@ export function Board({ id, report: r, sources, thumbnails, isExample, mode }: P
           </Card>
 
           {/* 7. Game plan */}
-          <Card n={7} title="The Game Plan" question="What do we actually do next, and how will we know it worked?" className="md:col-span-6 bg-ink text-white" dark>
+          <Card n={r.launch ? 8 : 7} title="The Game Plan" question="What do we actually do next, and how will we know it worked?" className="md:col-span-6 bg-ink text-white" dark>
             <div className="grid gap-6 lg:grid-cols-3">
               <div>
                 <Label dark>Do next</Label>

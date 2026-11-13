@@ -14,6 +14,7 @@ export function mockPlaybook(i: PlaybookInputs): PlaybookReport {
     channels: ["LinkedIn", "YouTube", "Newsletters"].map((p, n) => ({ platform: p, role: M("Role"), tactic: M("Tactic"), format: M("Format"), audience: M("Audience"), cadence: "Weekly", kpi: M("KPI"), mock: { kind: n === 1 ? ("long_video" as const) : n === 2 ? ("email" as const) : ("social_post" as const), headline: M("Sample headline"), body: M("Sample post copy.") }, exampleRef: null, exampleNote: M("What to borrow"), steps: [M("Step")] })),
     collaborators: (["partner", "creator", "community"] as const).map((t, n) => ({ name: M(`Collaborator ${n + 1}`), type: t, why: M("Why"), activation: M("Activation"), sourceRefs: [] })),
     story: { angle: M("Story angle"), whyInteresting: M("Why it matters"), sampleHeadline: M("A headline a journalist might write"), opportunities: [{ outlet: M("Outlet"), why: M("Why"), sourceRef: null }], risks: [M("Risk")], evidence: [hyp("Evidence")] },
+    launch: { moment: M("Launch moment"), when: M("Launch day"), hype: ["4 weeks out", "1 week out", "Launch day"].map((w) => ({ when: w, move: M("Hype move") })), post: M("Launch post") },
     gamePlan: { actions: [1, 2, 3].map((n) => ({ action: M(`Action ${n}`), why: M("Why") })), timeline: ["Weeks 1–2", "Weeks 3–6", "Weeks 7–12"].map((w) => ({ when: w, focus: M("Focus") })), kpis: [1, 2, 3].map((n) => ({ name: M(`KPI ${n}`), target: M("Target") })) },
     assumptions: [M("Assumption")],
   };

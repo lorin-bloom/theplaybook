@@ -106,6 +106,7 @@ const chatgptBusiness: PlaybookReport = {
     risks: ["Avoid any framing that implies watching employees’ personal accounts.", "Don’t claim productivity numbers without customer data."],
     evidence: [v("Most AI-using small businesses reported growing their workforce.", "S5")],
   },
+  launch: null,
   gamePlan: {
     actions: [
       { action: "Launch a consent-first ‘bring your team’ invite flow", why: "Turns existing users into internal champions." },
