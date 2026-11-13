@@ -39,7 +39,7 @@ export async function tavilySearch(query: string, maxResults: number): Promise<S
  * because it returns cited passages (URL + quote); we keep only those, so no
  * link can be invented. (The dynamic-filtering variant returns uncited prose.)
  */
-export async function anthropicSearch(queries: string[], topic: string, playbookId: string | null): Promise<SearchHit[]> {
+export async function anthropicSearch(queries: string[], topic: string, instruction: string, playbookId: string | null): Promise<SearchHit[]> {
   const cfg = getConfig();
   const model = cfg.models.research;
   const maxUses = cfg.research.anthropicMaxUses;
@@ -55,7 +55,7 @@ export async function anthropicSearch(queries: string[], topic: string, playbook
       messages: [
         {
           role: "user",
-          content: `Research for a marketing plan (${topic}). Search the web for:\n${queries.map((q, i) => `${i + 1}. ${q}`).join("\n")}\nPrefer official sources for product facts and specific pages (a campaign, post, video, article, creator or community page) rather than homepages. Write short factual findings; cite a search result in every sentence.`,
+          content: `Research for a marketing plan (${topic}).\nGoal: ${instruction}\nUseful searches to start from (adapt as needed):\n${queries.map((q, i) => `${i + 1}. ${q}`).join("\n")}\nPrefer specific pages (a campaign, video, post, show, channel, newsletter or community page) over homepages. Write short factual findings; cite a search result in every sentence.`,
         },
       ],
     })

@@ -29,6 +29,22 @@ export function inputHash(inputs: PlaybookInputs, docs: UploadedDoc[]) {
   return hashOf({ pv: PLAYBOOK_PROMPT_VERSION, p: norm(inputs.product), a: norm(inputs.about), u: norm(inputs.audience), g: norm(inputs.goal), d: docs.map((d) => hashOf(d.text)).sort() });
 }
 
+/**
+ * Each kind of link may only come from the research bucket meant for it, so the
+ * product's own coverage can never appear as an example, collaborator or outlet.
+ */
+export function enforceLinkPurpose(report: PlaybookReport, sources: PlaybookSource[]): PlaybookReport {
+  const topic = new Map(sources.map((s) => [s.ref, s.topic]));
+  const allow = (ref: string | null, topics: string[]) => (ref && topics.includes(topic.get(ref) ?? "") ? ref : null);
+  return {
+    ...report,
+    bigIdea: { ...report.bigIdea, inspirationRef: allow(report.bigIdea.inspirationRef, ["examples"]) },
+    channels: report.channels.map((c) => ({ ...c, exampleRef: allow(c.exampleRef, ["examples"]) })),
+    collaborators: report.collaborators.map((c) => ({ ...c, sourceRefs: c.sourceRefs.filter((r) => allow(r, ["people", "examples"])) })),
+    story: { ...report.story, opportunities: report.story.opportunities.map((o) => ({ ...o, sourceRef: allow(o.sourceRef, ["people"]) })) },
+  };
+}
+
 export function friendlyError(e: unknown): string {
   if (e instanceof BudgetExceededError || e instanceof AiNotConfiguredError || e instanceof AiOutputError) return e.message;
   const err = e as { status?: number };
@@ -78,16 +94,29 @@ export function buildUserMessage(inputs: PlaybookInputs, docs: UploadedDoc[], so
     const note = text.length < d.text.length ? `\n[Document truncated: first ${text.length.toLocaleString()} characters used]` : "";
     return wrapUntrusted("document", `U${i + 1}`, `${d.name}\n${text}${note}`);
   });
-  const sourceBlocks = sources
-    .filter((s) => s.origin === "public")
-    .map((s) => wrapUntrusted("source", s.ref, `${s.title} — ${s.publisher ?? ""}${s.publishedAt ? `, ${s.publishedAt}` : ""}\nurl: ${s.url}\n${s.excerpt}`));
+  const block = (topic: string) =>
+    sources
+      .filter((s) => s.origin !== "upload" && s.topic === topic)
+      .map((s) => wrapUntrusted("source", s.ref, `${s.title} — ${s.publisher ?? ""}${s.publishedAt ? `, ${s.publishedAt}` : ""}\nurl: ${s.url}\n${s.excerpt}`))
+      .join("\n");
+  const research = [
+    ["market", "Market & product facts — use ONLY as evidence (never as exampleRef, inspirationRef, collaborator or media links)"],
+    ["examples", "Competitor & adjacent-brand marketing — the ONLY valid exampleRef / inspirationRef sources"],
+    ["people", "Independent creators, podcasts, newsletters, communities & publications — use for collaborators and media opportunities"],
+  ]
+    .map(([topic, heading]) => {
+      const b = block(topic);
+      return b ? `## ${heading}\n${b}` : "";
+    })
+    .filter(Boolean)
+    .join("\n\n");
   return [
     `# What we're marketing\nProduct: ${inputs.product}`,
     inputs.about && `About it (from the user):\n${wrapUntrusted("user_note", "about", inputs.about)}`,
     `Who it's for: ${inputs.audience || "(not specified — infer the strongest audience and say so in assumptions)"}`,
     `Goal: ${inputs.goal || "(not specified — assume growing adoption and say so in assumptions)"}`,
     docBlocks.length ? `# Uploaded materials (the company's own claims; cite as U1, U2…)\n${docBlocks.join("\n")}` : "",
-    `# Research sources (cite by handle)\n${sourceBlocks.join("\n") || "No research available — mark claims as hypothesis and set example links to null."}`,
+    `# Research sources (cite by handle)\n${research || "No research available — mark claims as hypothesis and set example links to null."}`,
   ]
     .filter(Boolean)
     .join("\n\n");
@@ -116,7 +145,8 @@ export async function runPipeline(id: string, inputs: PlaybookInputs, docs: Uplo
       // The 7-section schema is too large for strict structured outputs (see client.ts).
       jsonMode: "prompt",
     });
-    const { content: report } = enforceProvenance(res.data, sources.map((s) => s.ref));
+    const { content: checked } = enforceProvenance(res.data, sources.map((s) => s.ref));
+    const report = enforceLinkPurpose(checked, sources);
 
     await setStage(id, "Adding real examples");
     const byRef = new Map(sources.map((s) => [s.ref, s]));

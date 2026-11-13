@@ -9,7 +9,10 @@ import type { PlaybookReport, PlaybookSource } from "./schema";
 import { DEMO_SOURCES } from "./exampleSources";
 import { fetchThumbnails } from "./thumbnails";
 
-export const EXAMPLE_VERSION = "example-v1";
+export const EXAMPLE_VERSION = "example-v2";
+
+/** Which research bucket each example source belongs to (same rules as generated playbooks). */
+const EXAMPLE_TOPICS: Record<string, string> = { S13: "examples", S14: "examples", S15: "examples", S4: "people", S11: "people", S16: "people", S17: "people" };
 
 const v = (text: string, ...sourceRefs: string[]) => ({ text, status: "verified" as const, sourceRefs });
 
@@ -42,8 +45,8 @@ const chatgptBusiness: PlaybookReport = {
     example: { format: "LinkedIn carousel", headline: "How a 12-person agency writes proposals in an hour", body: "Brief in Drive. Client thread in Slack. Deal history in the CRM. One question to their shared ChatGPT — and a cited first draft before lunch.", cta: "Set up your team" },
     whyItWorks: "It proves usefulness with a real job instead of claiming capability — and makes the team, not the tool, the hero.",
     steps: ["Recruit six small teams willing to be filmed", "Shoot one workflow per team, citations on screen", "Cut each into a long video, a carousel and two Shorts"],
-    inspirationRef: "S8",
-    inspirationNote: "Borrow the specificity of everyday-use stories; swap personal moments for team workflows.",
+    inspirationRef: "S13",
+    inspirationNote: "Borrow real owners as the heroes; swap one-business vignettes for one-team workflows.",
   },
   channels: [
     {
@@ -55,8 +58,8 @@ const chatgptBusiness: PlaybookReport = {
       cadence: "2 posts / week",
       kpi: "Cost per team trial",
       mock: { kind: "social_post", headline: "We retired 9 personal AI accounts last month.", body: "Our ops lead set up one shared ChatGPT workspace on a Tuesday. By Friday the whole team was drafting proposals from the same briefs. Here’s the 3-step setup we used 👇", },
-      exampleRef: "S3",
-      exampleNote: "A segment-specific launch frame (“built for SMBs”) makes small teams feel seen.",
+      exampleRef: "S14",
+      exampleNote: "Character-led small-business stories make AI feel practical, not technical.",
       steps: ["Interview 6 operators", "Turn each into a carousel", "Boost the top 2 to ops titles"],
     },
     {
@@ -68,8 +71,8 @@ const chatgptBusiness: PlaybookReport = {
       cadence: "1 episode every 2 weeks",
       kpi: "Views from search → sign-ups",
       mock: { kind: "long_video", headline: "Small Team, Big Output — Ep. 1: The 1-hour proposal", body: "A 12-person agency shows exactly how they write client proposals from Drive, Slack and their CRM in one cited chat." },
-      exampleRef: "S11",
-      exampleNote: "Productivity creators prove the format: tight, practical tutorials with one clear takeaway.",
+      exampleRef: "S15",
+      exampleNote: "A competitor proves the long-form brand film; pair that ambition with practical demos.",
       steps: ["Script 6 workflows", "Film on location", "Publish with chaptered, search-led titles"],
     },
     {
@@ -81,15 +84,15 @@ const chatgptBusiness: PlaybookReport = {
       cadence: "Quarterly flagship",
       kpi: "Partner-sourced workspaces",
       mock: { kind: "event", headline: "Live: run Monday pipeline review with ChatGPT", body: "Bring your HubSpot pipeline. Leave with templates for account research, QBR prep and weekly reviews." },
-      exampleRef: "S7",
-      exampleNote: "Let the partner announce to its own audience, using its own customer proof.",
+      exampleRef: null,
+      exampleNote: "",
       steps: ["Propose a joint session", "Build 5 templates", "Promote via partner newsletter"],
     },
   ],
   collaborators: [
-    { name: "HubSpot", type: "partner", why: "Already ships a ChatGPT connector and says most of its customers use ChatGPT.", activation: "Joint pipeline-review series and template pack for SMB sales teams.", sourceRefs: ["S7"] },
+    { name: "HubSpot", type: "partner", why: "Its SMB customers live in the CRM — a natural home for team AI workflows.", activation: "Joint pipeline-review series and template pack for SMB sales teams.", sourceRefs: [] },
     { name: "Jeff Su", type: "creator", why: "Teaches practical AI-at-work how-tos to a professional audience.", activation: "Sponsored episode: setting up AI for a whole team in an afternoon.", sourceRefs: ["S11"] },
-    { name: "Slack community", type: "community", why: "Slack threads are core company context that ChatGPT can now answer from.", activation: "“From thread to answer” workflow showcase with real small teams.", sourceRefs: ["S6"] },
+    { name: "Melinda Emerson (Succeed As Your Own Boss)", type: "creator", why: "Small-business advisor whose podcast picks and guides reach owners looking for growth tools.", activation: "Co-create a “set up AI for your team in an afternoon” episode and checklist.", sourceRefs: ["S16"] },
   ],
   story: {
     angle: "Small businesses didn’t wait for permission to use AI — now they’re making it official.",
@@ -97,7 +100,7 @@ const chatgptBusiness: PlaybookReport = {
     sampleHeadline: "Shadow AI goes legit: how small firms are turning personal ChatGPT habits into team tools",
     opportunities: [
       { outlet: "Constellation Insights", why: "Has covered how AI bundling changes the economics for business buyers.", sourceRef: "S4" },
-      { outlet: "Maginative", why: "Covered company knowledge and its governance questions.", sourceRef: "S6" },
+      { outlet: "Adweek", why: "Covers how AI brands market to small businesses.", sourceRef: "S17" },
       { outlet: "Small-business press", why: "Customer stories with practical governance lessons travel well.", sourceRef: null },
     ],
     risks: ["Avoid any framing that implies watching employees’ personal accounts.", "Don’t claim productivity numbers without customer data."],
@@ -140,7 +143,7 @@ export function ensureExamples(): Promise<void> {
     for (const ex of EXAMPLES) {
       const [row] = await db.select({ inputHash: schema.playbooks.inputHash }).from(schema.playbooks).where(eq(schema.playbooks.id, ex.id));
       if (row?.inputHash === EXAMPLE_VERSION) continue;
-      const sources: PlaybookSource[] = DEMO_SOURCES.map((s) => ({ ref: s.ref, title: s.title, url: s.url, publisher: s.publisher, publishedAt: s.publishedAt, excerpt: s.excerpt, origin: "example", topic: s.topics[0] }));
+      const sources: PlaybookSource[] = DEMO_SOURCES.map((s) => ({ ref: s.ref, title: s.title, url: s.url, publisher: s.publisher, publishedAt: s.publishedAt, excerpt: s.excerpt, origin: "example", topic: EXAMPLE_TOPICS[s.ref] ?? "market" }));
       await db.delete(schema.playbooks).where(eq(schema.playbooks.id, ex.id));
       await db.insert(schema.playbooks).values({ id: ex.id, inputHash: EXAMPLE_VERSION, inputs: ex.inputs, status: "done", report: ex.report, sources, generationMode: "example", isExample: true, finishedAt: new Date() });
       const urls = [ex.report.bigIdea.inspirationRef, ...ex.report.channels.map((c) => c.exampleRef), ...ex.report.collaborators.map((c) => c.sourceRefs[0]), ...ex.report.story.opportunities.map((o) => o.sourceRef)]

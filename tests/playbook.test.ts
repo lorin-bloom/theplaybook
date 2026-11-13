@@ -3,12 +3,12 @@ import { eq } from "drizzle-orm";
 import { getDb, schema } from "@/lib/db";
 import { setAnthropicClientForTests } from "@/lib/ai/client";
 import { PlaybookReport, type PlaybookInputs } from "@/lib/playbook/schema";
-import { createPlaybook, buildUserMessage, friendlyError, getPlaybook } from "@/lib/playbook/generate";
+import { createPlaybook, buildUserMessage, enforceLinkPurpose, friendlyError, getPlaybook } from "@/lib/playbook/generate";
 import { LimitError, checkLimits } from "@/lib/playbook/limits";
 import { enforceProvenance } from "@/lib/playbook/provenance";
 import { mockPlaybook } from "@/lib/playbook/mock";
 import { EXAMPLES, ensureExamples } from "@/lib/playbook/examples";
-import { planQueries } from "@/lib/research/research";
+import { isAboutProduct, planQueries } from "@/lib/research/research";
 import { ogImageFromHtml, youtubeThumbnail } from "@/lib/playbook/thumbnails";
 import { playbookToMarkdown } from "@/lib/playbook/markdown";
 import { BudgetExceededError } from "@/lib/cost/budget";
@@ -27,6 +27,8 @@ let n = 0;
 const visitor = () => `v${++n}`;
 /** Research calls carry the web_search tool; the writing call has no tools. */
 const isSearch = (c: Record<string, unknown>) => JSON.stringify(c.tools ?? []).includes("web_search");
+/** Which research batch a search call is for. */
+const batch = (c: Record<string, unknown>) => (JSON.stringify(c.messages).match(/marketing plan \((\w+)\)/)?.[1] ?? "?");
 
 beforeEach(async () => {
   await freshDb();
@@ -75,6 +77,40 @@ describe("provenance", () => {
     expect(content.inspirationRef).toBe("S1");
     expect(content.sourceRefs).toEqual(["S1"]);
     expect(content.evidence[0]).toEqual({ text: "x", status: "hypothesis", sourceRefs: [] });
+  });
+});
+
+describe("pre-launch link rules", () => {
+  it("recognises pages about the product itself", () => {
+    expect(isAboutProduct({ title: "How Sam Altman uses Dots", url: "https://every.to/podcast/x" }, "ChatGPT Dots")).toBe(true);
+    expect(isAboutProduct({ title: "Guide", url: "https://site.com/blog/chatgpt-dots-alternatives" }, "ChatGPT Dots")).toBe(true);
+    expect(isAboutProduct({ title: "Anthropic launches Keep thinking", url: "https://axios.com/claude" }, "ChatGPT Dots")).toBe(false);
+    expect(isAboutProduct({ title: "Lenny's Podcast", url: "https://lennys.example" }, "Linear")).toBe(false);
+  });
+
+  it("only lets each link come from its own research bucket", () => {
+    const sources = [
+      { ref: "S1", topic: "market" },
+      { ref: "S2", topic: "examples" },
+      { ref: "S3", topic: "people" },
+    ] as never;
+    const r = mockPlaybook(inputs());
+    r.bigIdea.inspirationRef = "S1";
+    r.channels[0].exampleRef = "S2";
+    r.channels[1].exampleRef = "S3";
+    r.collaborators[0].sourceRefs = ["S1", "S3"];
+    r.story.opportunities[0].sourceRef = "S2";
+    const out = enforceLinkPurpose(r, sources);
+    expect(out.bigIdea.inspirationRef).toBeNull();
+    expect(out.channels.map((c) => c.exampleRef).slice(0, 2)).toEqual(["S2", null]);
+    expect(out.collaborators[0].sourceRefs).toEqual(["S3"]);
+    expect(out.story.opportunities[0].sourceRef).toBeNull();
+  });
+
+  it("the example playbook follows the same rules", async () => {
+    await ensureExamples();
+    const p = (await getPlaybook("chatgpt-business"))!;
+    expect(enforceLinkPurpose(p.report!, p.sources)).toEqual(p.report);
   });
 });
 
@@ -155,9 +191,18 @@ describe("live path with a fake Anthropic client", () => {
   it("researches cheaply, writes the whole playbook in ONE call, and drops invented links", async () => {
     liveEnv();
     const report = mockPlaybook(inputs());
-    report.channels[0].exampleRef = "S1";
+    report.channels[0].exampleRef = "S2"; // competitor campaign (examples batch)
     report.channels[1].exampleRef = "S999"; // invented
-    const fake = fakeClient((params) => (isSearch(params) ? searchMessage("https://acme.example/case", "Acme cut close time by 3 days.") : textMessage(report)));
+    report.channels[2].exampleRef = "S1"; // a market fact — not allowed as an example
+    const fake = fakeClient((params) =>
+      isSearch(params)
+        ? batch(params) === "examples"
+          ? searchMessage("https://rival.example/launch-film", "Rival's launch film follows real finance teams.")
+          : batch(params) === "people"
+            ? searchMessage("https://pod.example/finance-show", "A podcast for finance leaders.")
+            : searchMessage("https://acme.example/case", "Acme cut close time by 3 days.")
+        : textMessage(report),
+    );
     setAnthropicClientForTests(fake.client);
 
     const { id } = await createPlaybook(inputs(), [], visitor());
@@ -166,7 +211,8 @@ describe("live path with a fake Anthropic client", () => {
 
     const research = fake.calls.filter(isSearch);
     const writing = fake.calls.filter((c) => !isSearch(c));
-    expect(research.map((c) => c.model)).toEqual(["claude-haiku-5-5", "claude-haiku-5-5"]);
+    expect(research.map((c) => c.model)).toEqual(["claude-haiku-5-5", "claude-haiku-5-5", "claude-haiku-5-5"]);
+    expect(research.map(batch)).toEqual(["market", "examples", "people"]);
     expect(writing.map((c) => c.model)).toEqual(["claude-sonnet-5-5"]);
     // The 7-section schema exceeds the strict-grammar limit, so the shape is described in the prompt.
     expect((writing[0].output_config as Record<string, unknown>).format).toBeUndefined();
@@ -174,9 +220,10 @@ describe("live path with a fake Anthropic client", () => {
     expect(JSON.stringify(research)).not.toContain("SECRET"); // private text never sent to search
     expect(JSON.stringify((research[0].tools as unknown[])[0])).toContain("web_search_20250305");
 
-    expect(p.sources.map((s) => s.url)).toEqual(["https://acme.example/case"]);
-    expect(p.report!.channels[0].exampleRef).toBe("S1");
+    expect(p.sources.map((s) => [s.ref, s.topic])).toEqual([["S1", "market"], ["S2", "examples"], ["S3", "people"]]);
+    expect(p.report!.channels[0].exampleRef).toBe("S2");
     expect(p.report!.channels[1].exampleRef).toBeNull();
+    expect(p.report!.channels[2].exampleRef).toBeNull(); // facts can't be shown as examples
     expect(p.costUsd).toBeGreaterThan(0);
 
     // Same request again: served from the saved playbook, zero new calls.
@@ -191,7 +238,7 @@ describe("live path with a fake Anthropic client", () => {
     setAnthropicClientForTests(fake.client);
     await waitForPlaybook((await createPlaybook(inputs({ goal: "Goal A" }), [], visitor())).id);
     await waitForPlaybook((await createPlaybook(inputs({ goal: "Goal B" }), [], visitor())).id);
-    expect(fake.calls.filter(isSearch)).toHaveLength(2); // only the first playbook searched
+    expect(fake.calls.filter(isSearch)).toHaveLength(3); // only the first playbook searched (3 batches)
     expect(fake.calls.filter((c) => !isSearch(c))).toHaveLength(2);
   });
 
