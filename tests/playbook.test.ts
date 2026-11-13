@@ -165,6 +165,8 @@ describe("live path with a fake Anthropic client", () => {
     expect((writing[0].output_config as Record<string, unknown>).format).toBeUndefined();
     expect((writing[0].tools as { name: string }[]).map((t) => t.name)).toEqual(["write_playbook"]);
     expect(writing[0].tool_choice).toEqual({ type: "auto" });
+    // Eager input streaming passed malformed nested arguments through in production; it must stay off.
+    expect(JSON.stringify(writing[0].tools)).not.toContain("eager_input_streaming");
     expect(JSON.stringify(research)).not.toContain("SECRET"); // private text never sent to search
     expect(JSON.stringify((research[0].tools as unknown[])[0])).toContain("web_search_20250305");
 

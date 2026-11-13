@@ -116,7 +116,9 @@ export async function callStructured<S extends z.ZodType>(call: StructuredCall<S
         ...(toolMode
           ? {
               // Forced tool_choice isn't available on current models; the system prompt instructs the call.
-              tools: [{ name: toolName, description: "Submit the finished result. Call exactly once.", input_schema: toolInputSchema(call.schema), eager_input_streaming: true }],
+              // No eager_input_streaming: for this deeply nested input the API must assemble and
+              // validate the JSON server-side (eager mode passed malformed arguments through in production).
+              tools: [{ name: toolName, description: "Submit the finished result. Call exactly once.", input_schema: toolInputSchema(call.schema) }],
               tool_choice: { type: "auto" as const },
               output_config: { effort: cfg.effort[call.role] },
             }
