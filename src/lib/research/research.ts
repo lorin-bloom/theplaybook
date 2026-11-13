@@ -75,7 +75,8 @@ export function isAboutProduct(hit: Pick<SearchHit, "title" | "url">, product: s
 
 /** "9 Best AI Podcasts in 2026", "Top 10 creators…" — a list article, not the creator's own page. */
 export function isListicle(title: string): boolean {
-  return /\b(best|top)\b/i.test(title) && /\b(podcasts|creators|youtubers|channels|newsletters|communities|influencers|shows|blogs|accounts)\b/i.test(title);
+  const kinds = "podcasts|creators|youtubers|youtube channels|channels|newsletters|communities|influencers|shows|blogs|accounts";
+  return new RegExp(`\\b(best|top|\\d+)\\b.*\\b(${kinds})\\b|\\b(${kinds}) (for|to follow|to watch|to listen)\\b`, "i").test(title);
 }
 
 const normalizeUrl = (u: string) => u.replace(/#.*$/, "").replace(/[?&]utm_[^&]+/g, "").replace(/\/$/, "");

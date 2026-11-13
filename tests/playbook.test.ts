@@ -90,7 +90,9 @@ describe("pre-launch link rules", () => {
     expect(isAboutProduct({ title: "OpenAI's first major ChatGPT brand campaign", url: "https://thedrum.com/news/x" }, "ChatGPT Dots")).toBe(true);
     expect(isAboutProduct({ title: "OpenAI takes on Meta's Muse with new Dot agents", url: "https://fortune.com/x" }, "ChatGPT Dots")).toBe(true);
     expect(isListicle("9 Best AI Podcasts in 2026 (Verified Still Publishing)")).toBe(true);
+    expect(isListicle("YouTube channels for startups news, November 2026")).toBe(true);
     expect(isListicle("Latent Space: The AI Engineer Podcast")).toBe(false);
+    expect(isListicle("This Week in Startups")).toBe(false);
     // Generic words don't count: a Google Workspace "business" campaign isn't about "ChatGPT Business".
     expect(isAboutProduct({ title: "Google Workspace small business ads", url: "https://blog.google/x" }, "ChatGPT Business")).toBe(false);
   });

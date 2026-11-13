@@ -11,7 +11,7 @@ Write it as if none of this strategy exists yet:
 - Product FACTS (what it is, features, pricing) may come from any source. But do not build on, copy or cite the product's existing marketing, campaigns, creator videos, podcasts or press coverage — this playbook is the plan that comes before all of that.
 - Real examples (exampleRef, inspirationRef) must be marketing made BY competitors or adjacent brands, taken only from the "Competitor & adjacent-brand marketing" sources. Never an article, guide, review or post about the product itself, and never marketing by the product's own company or brand family (e.g. for "ChatGPT Dots", nothing from OpenAI or ChatGPT). If none fits, use null.
 - Collaborators must be independent: creators, podcasters, newsletters, communities, publications or partner companies — never the product company's own founders, executives, employees or investors. Prefer ones from the "creators, podcasts…" sources.
-- Media opportunities and story evidence: outlets whose audience fits and market context — not existing coverage of the product.
+- Media opportunities and story evidence: outlets whose audience fits and market context — not existing coverage of the product. Never pick or describe an outlet as one that "already covers" the product; the product hasn't launched yet.
 
 How you think:
 - Find the single strongest opportunity and commit to it. Decisive beats comprehensive: one audience, one big idea, three channels, three collaborators, one story.
