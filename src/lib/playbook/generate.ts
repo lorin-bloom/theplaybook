@@ -12,7 +12,7 @@ import { getConfig } from "@/lib/config";
 import { getDb, schema } from "@/lib/db";
 import { callStructured, AiNotConfiguredError, AiOutputError } from "@/lib/ai/client";
 import { BudgetExceededError } from "@/lib/cost/budget";
-import { research } from "@/lib/research/research";
+import { isListicle, research } from "@/lib/research/research";
 import { wrapUntrusted } from "@/lib/security/injection";
 import { hashOf, newId } from "@/lib/util/hash";
 import { PlaybookReport, type PlaybookInputs, type PlaybookSource } from "./schema";
@@ -37,6 +37,9 @@ export function enforceLinkPurpose(report: PlaybookReport, sources: PlaybookSour
   const topic = new Map(sources.map((s) => [s.ref, s.topic]));
   const about = new Set(sources.filter((s) => s.aboutProduct).map((s) => s.ref));
   const allow = (ref: string | null, topics: string[]) => (ref && topics.includes(topic.get(ref) ?? "") && !about.has(ref) ? ref : null);
+  // People link to their own page; a "best podcasts" list article is not that page.
+  const listicle = new Set(sources.filter((s) => isListicle(s.title)).map((s) => s.ref));
+  const own = (ref: string | null, topics: string[]) => (ref && !listicle.has(ref) ? allow(ref, topics) : null);
   // The PR plan comes before any coverage exists: its evidence can't cite existing coverage of the product.
   const storyEvidence = report.story.evidence.map((c) => {
     const refs = c.sourceRefs.filter((r) => !about.has(r));
@@ -46,8 +49,8 @@ export function enforceLinkPurpose(report: PlaybookReport, sources: PlaybookSour
     ...report,
     bigIdea: { ...report.bigIdea, inspirationRef: allow(report.bigIdea.inspirationRef, ["examples"]) },
     channels: report.channels.map((c) => ({ ...c, exampleRef: allow(c.exampleRef, ["examples"]) })),
-    collaborators: report.collaborators.map((c) => ({ ...c, sourceRefs: c.sourceRefs.filter((r) => allow(r, ["people", "examples"])) })),
-    story: { ...report.story, evidence: storyEvidence, opportunities: report.story.opportunities.map((o) => ({ ...o, sourceRef: allow(o.sourceRef, ["people"]) })) },
+    collaborators: report.collaborators.map((c) => ({ ...c, sourceRefs: c.sourceRefs.filter((r) => own(r, ["people", "examples"])) })),
+    story: { ...report.story, evidence: storyEvidence, opportunities: report.story.opportunities.map((o) => ({ ...o, sourceRef: own(o.sourceRef, ["people"]) })) },
   };
 }
 

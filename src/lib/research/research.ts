@@ -20,7 +20,7 @@ import { hashOf } from "@/lib/util/hash";
 import { anthropicSearch, tavilySearch, type SearchHit } from "./providers";
 
 export type ResearchTopicKey = "market" | "examples" | "people";
-export type ResearchTopic = { topic: ResearchTopicKey; label: string; instruction: string; queries: string[] };
+export type ResearchTopic = { topic: ResearchTopicKey; label: string; instruction: string; queries: string[]; maxUses: number };
 
 /** Builds research batches from PUBLIC inputs only (product + audience). Never the description or documents. */
 export function planQueries(inputs: Pick<PlaybookInputs, "product" | "audience">): ResearchTopic[] {
@@ -33,18 +33,21 @@ export function planQueries(inputs: Pick<PlaybookInputs, "product" | "audience">
       label: "Researching the market",
       instruction: `Facts about ${product}: what it is, who makes it, features, pricing, and its main competitors. Also the biggest problems ${who} face. Prefer official and reputable sources.`,
       queries: [`${product} what it is pricing`, `${product} competitors`, `${who} biggest challenges`],
+      maxUses: 2,
     },
     {
       topic: "examples",
       label: "Finding competitor campaigns",
-      instruction: `First identify ${product}'s main competitors and adjacent brands. Then find SPECIFIC marketing made BY those brands — ad campaigns, launch videos, brand films, social posts, creator collaborations — and cite the campaign page, the video, or press coverage of that campaign. Do NOT cite reviews, explainers, guides or "alternatives" articles about ${product}, and do not cite ${product}'s own website.`,
-      queries: [`${product} competitors ad campaign`, `${product} competitor launch video brand campaign`],
+      instruction: `Step 1: identify ${product}'s 2–3 main competitors or adjacent brands (NOT ${product}'s own company or brand family). Step 2: search each competitor BY NAME for marketing it made — ad campaigns, launch videos, brand films, social posts, creator collaborations — WITHOUT "${product}" in the query. Cite only pages about a competitor's own campaign (the campaign page, the video, or press coverage of that campaign). Never cite pages about ${product}, its company, reviews, comparisons or "alternatives" articles.`,
+      queries: [`${product} main competitors`, `<competitor name> ad campaign`, `<another competitor name> launch video brand campaign`],
+      maxUses: 3,
     },
     {
       topic: "people",
       label: "Finding creators, podcasts and press",
-      instruction: `Find independent creators, podcasts, newsletters, online communities and publications that ${who} follow for this category — for example tech and startup podcasts, YouTube creators, newsletters. Cite their show, channel, newsletter or community page (not an episode or article about ${product}). EXCLUDE ${product}'s own company: its founders, executives, employees and investors.`,
-      queries: [`best podcasts and YouTube creators for ${who}`, `newsletters and communities for ${who}`],
+      instruction: `Find specific independent creators, podcasts, YouTube channels, newsletters, communities and publications that ${who} follow for this category (e.g. tech and startup podcasts and creators). Step 1: find names. Step 2: search those names and cite THEIR OWN page — the show's website, YouTube channel, podcast page, newsletter or community — never a "best podcasts" list article, and never an episode or article about ${product}. EXCLUDE ${product}'s own company: its founders, executives, employees and investors.`,
+      queries: [`top podcasts and YouTube creators for ${who}`, `<show or creator name> podcast`, `<another show or creator name> newsletter OR YouTube`],
+      maxUses: 3,
     },
   ];
 }
@@ -70,6 +73,11 @@ export function isAboutProduct(hit: Pick<SearchHit, "title" | "url">, product: s
   return forms.some((w) => hay.includes(` ${w} `));
 }
 
+/** "9 Best AI Podcasts in 2026", "Top 10 creators…" — a list article, not the creator's own page. */
+export function isListicle(title: string): boolean {
+  return /\b(best|top)\b/i.test(title) && /\b(podcasts|creators|youtubers|channels|newsletters|communities|influencers|shows|blogs|accounts)\b/i.test(title);
+}
+
 const normalizeUrl = (u: string) => u.replace(/#.*$/, "").replace(/[?&]utm_[^&]+/g, "").replace(/\/$/, "");
 const PER_TOPIC = 8;
 
@@ -83,7 +91,7 @@ export async function research(inputs: PlaybookInputs, playbookId: string | null
   const byUrl = new Map<string, SearchHit & { topic: ResearchTopicKey; aboutProduct: boolean }>();
   for (const t of planQueries(inputs)) {
     await log(t.label);
-    const key = hashOf({ provider: cfg.researchProvider, topic: t.topic, instruction: t.instruction, queries: t.queries, n: cfg.research.tavilyResults, u: cfg.research.anthropicMaxUses });
+    const key = hashOf({ provider: cfg.researchProvider, topic: t.topic, instruction: t.instruction, queries: t.queries, n: cfg.research.tavilyResults, u: t.maxUses });
     const [cached] = await db.select().from(schema.researchCache).where(eq(schema.researchCache.key, key));
     let found: SearchHit[];
     if (cached && cached.expiresAt > new Date()) {
@@ -92,8 +100,8 @@ export async function research(inputs: PlaybookInputs, playbookId: string | null
       try {
         found =
           cfg.researchProvider === "tavily"
-            ? (await Promise.all(t.queries.map((q) => tavilySearch(q, cfg.research.tavilyResults)))).flat()
-            : await anthropicSearch(t.queries, t.topic, t.instruction, playbookId);
+            ? (await Promise.all(t.queries.filter((q) => !q.includes("<")).map((q) => tavilySearch(q, cfg.research.tavilyResults)))).flat()
+            : await anthropicSearch(t.queries, t.topic, t.instruction, playbookId, t.maxUses);
       } catch (e) {
         limitations.push(`Some research failed: ${(e as Error).message}`);
         found = [];

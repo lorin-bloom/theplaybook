@@ -39,10 +39,10 @@ export async function tavilySearch(query: string, maxResults: number): Promise<S
  * because it returns cited passages (URL + quote); we keep only those, so no
  * link can be invented. (The dynamic-filtering variant returns uncited prose.)
  */
-export async function anthropicSearch(queries: string[], topic: string, instruction: string, playbookId: string | null): Promise<SearchHit[]> {
+export async function anthropicSearch(queries: string[], topic: string, instruction: string, playbookId: string | null, uses?: number): Promise<SearchHit[]> {
   const cfg = getConfig();
   const model = cfg.models.research;
-  const maxUses = cfg.research.anthropicMaxUses;
+  const maxUses = uses ?? cfg.research.anthropicMaxUses;
   await assertBudget(estimateCost(model, 25_000, 2_000, maxUses));
   const msg = await anthropic()
     .beta.messages.stream({

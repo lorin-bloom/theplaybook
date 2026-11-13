@@ -8,7 +8,7 @@ import { LimitError, checkLimits } from "@/lib/playbook/limits";
 import { enforceProvenance } from "@/lib/playbook/provenance";
 import { mockPlaybook } from "@/lib/playbook/mock";
 import { EXAMPLES, ensureExamples } from "@/lib/playbook/examples";
-import { isAboutProduct, planQueries } from "@/lib/research/research";
+import { isAboutProduct, isListicle, planQueries } from "@/lib/research/research";
 import { ogImageFromHtml, youtubeThumbnail } from "@/lib/playbook/thumbnails";
 import { playbookToMarkdown } from "@/lib/playbook/markdown";
 import { BudgetExceededError } from "@/lib/cost/budget";
@@ -89,6 +89,8 @@ describe("pre-launch link rules", () => {
     // Brand family counts too: OpenAI's own ChatGPT campaign is not a competitor example for ChatGPT Dots.
     expect(isAboutProduct({ title: "OpenAI's first major ChatGPT brand campaign", url: "https://thedrum.com/news/x" }, "ChatGPT Dots")).toBe(true);
     expect(isAboutProduct({ title: "OpenAI takes on Meta's Muse with new Dot agents", url: "https://fortune.com/x" }, "ChatGPT Dots")).toBe(true);
+    expect(isListicle("9 Best AI Podcasts in 2026 (Verified Still Publishing)")).toBe(true);
+    expect(isListicle("Latent Space: The AI Engineer Podcast")).toBe(false);
     // Generic words don't count: a Google Workspace "business" campaign isn't about "ChatGPT Business".
     expect(isAboutProduct({ title: "Google Workspace small business ads", url: "https://blog.google/x" }, "ChatGPT Business")).toBe(false);
   });

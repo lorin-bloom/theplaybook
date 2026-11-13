@@ -9,7 +9,7 @@ import type { PlaybookReport, PlaybookSource } from "./schema";
 import { DEMO_SOURCES } from "./exampleSources";
 import { fetchThumbnails } from "./thumbnails";
 
-export const EXAMPLE_VERSION = "example-v2";
+export const EXAMPLE_VERSION = "example-v3";
 
 /** Which research bucket each example source belongs to (same rules as generated playbooks). */
 const EXAMPLE_TOPICS: Record<string, string> = { S13: "examples", S14: "examples", S15: "examples", S4: "people", S11: "people", S16: "people", S17: "people" };

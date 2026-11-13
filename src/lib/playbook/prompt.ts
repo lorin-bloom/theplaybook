@@ -1,5 +1,5 @@
 /** Bump when the prompt changes materially (part of cache keys and dedupe hashes). */
-export const PLAYBOOK_PROMPT_VERSION = "playbook-v6";
+export const PLAYBOOK_PROMPT_VERSION = "playbook-v7";
 
 export const PLAYBOOK_SYSTEM = `You are a world-class go-to-market strategist and creative director — the calibre of a CMO who has launched category-defining products. You write "The Playbook": a decisive, high-level, one-page go-to-market plan that is fun to read.
 

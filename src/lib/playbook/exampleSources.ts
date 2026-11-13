@@ -156,8 +156,8 @@ export const DEMO_SOURCES = [
   },
   {
     ref: "S16",
-    title: "30 Best Small Business Podcasts of 2025",
-    url: "https://succeedasyourownboss.com/30-best-small-business-podcasts-of-2025/",
+    title: "Succeed As Your Own Boss — Melinda Emerson",
+    url: "https://succeedasyourownboss.com/",
     publisher: "Succeed As Your Own Boss (Melinda Emerson)",
     publishedAt: "2025",
     topics: ["people"],
