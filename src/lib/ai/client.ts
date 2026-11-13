@@ -65,6 +65,28 @@ export type StructuredCall<S extends z.ZodType> = {
 
 /** Pulls the outermost JSON object out of a model reply (fallback when it writes JSON as text). */
 
+/**
+ * Models sometimes pass nested tool arguments as JSON-encoded strings
+ * (e.g. "opportunity": "{\"headline\": …}"). Unpack those recursively.
+ */
+export function unstringifyNested(value: unknown, depth = 0): unknown {
+  if (depth > 8) return value;
+  if (typeof value === "string") {
+    const t = value.trim();
+    if ((t.startsWith("{") && t.endsWith("}")) || (t.startsWith("[") && t.endsWith("]"))) {
+      try {
+        return unstringifyNested(JSON.parse(t), depth + 1);
+      } catch {
+        return value;
+      }
+    }
+    return value;
+  }
+  if (Array.isArray(value)) return value.map((v) => unstringifyNested(v, depth + 1));
+  if (value && typeof value === "object") return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, unstringifyNested(v, depth + 1)]));
+  return value;
+}
+
 export function extractJson(text: string): unknown {
   const start = text.indexOf("{");
   const end = text.lastIndexOf("}");
@@ -141,7 +163,7 @@ export async function callStructured<S extends z.ZodType>(call: StructuredCall<S
     const toolUse = message.content.find((b): b is Anthropic.Beta.BetaToolUseBlock => b.type === "tool_use" && b.name === toolName);
     let json: unknown;
     try {
-      json = toolMode ? (toolUse ? toolUse.input : extractJson(text)) : JSON.parse(text);
+      json = toolMode ? unstringifyNested(toolUse ? toolUse.input : extractJson(text)) : JSON.parse(text);
     } catch {
       console.error(`[${call.operation}] no usable JSON; stop=${message.stop_reason}; reply starts: ${text.slice(0, 400)}`);
       throw new AiOutputError("The playbook came back in an unexpected format. Please try again.");

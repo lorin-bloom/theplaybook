@@ -216,6 +216,17 @@ describe("live path with a fake Anthropic client", () => {
     expect(p.report!.channels[0].mock.kind).toBe("social_post");
   });
 
+  it("unpacks nested sections the model sends as JSON strings", async () => {
+    liveEnv();
+    const report = mockPlaybook(inputs()) as unknown as Record<string, unknown>;
+    const stringified = Object.fromEntries(Object.entries(report).map(([k, v]) => [k, typeof v === "object" ? JSON.stringify(v) : v]));
+    const fake = fakeClient((params) => (isSearch(params) ? searchMessage("https://acme.example/s", "Q.") : toolMessage(stringified)));
+    setAnthropicClientForTests(fake.client);
+    const p = await waitForPlaybook((await createPlaybook(inputs({ goal: "Stringified" }), [], visitor())).id);
+    expect(p.status).toBe("done");
+    expect(p.report!.channels).toHaveLength(3);
+  });
+
   it("works from just a product name", async () => {
     liveEnv();
     const fake = fakeClient((params) => (isSearch(params) ? searchMessage("https://dots.example/a", "Q.") : toolMessage(mockPlaybook(inputs()))));
