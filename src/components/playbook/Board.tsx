@@ -1,6 +1,6 @@
 "use client";
 /**
- * The Playbook as a creative strategy board: seven cards, one headline each,
+ * The GTM Playbook as a creative strategy board: seven cards, one headline each,
  * real-example thumbnails, mock creatives, and native <details> expanders for
  * the rationale (which print open automatically).
  */
@@ -24,7 +24,7 @@ export function Board({ id, report: r, sources, thumbnails, isExample, mode }: P
       <main className="mx-auto max-w-6xl px-4 pb-20 pt-8 sm:px-6">
         <header className="mb-8">
           <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-500">
-            The Playbook{isExample ? " / Concept demo" : ""}
+            The GTM Playbook{isExample ? " / Concept demo" : ""}
           </div>
           <h1 className="mt-2 font-serif text-5xl leading-none tracking-tight text-ink sm:text-6xl">{r.productName}</h1>
           <p className="mt-3 max-w-2xl text-lg text-slate-600">{r.oneLiner}</p>

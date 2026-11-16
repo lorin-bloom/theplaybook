@@ -7,7 +7,7 @@ const refs = (r: string[] | string | null) => {
 
 export function playbookToMarkdown(r: PlaybookReport, sources: PlaybookSource[], isExample = false): string {
   const out = [
-    `# The Playbook: ${r.productName}`,
+    `# The GTM Playbook: ${r.productName}`,
     r.oneLiner,
     isExample ? "> Concept demo built from public sources. Independent strategy, not affiliated with the company." : "",
     `## 1. The Opportunity\n**${r.opportunity.headline}**\n\n- Audience: ${r.opportunity.audience}\n- Problem: ${r.opportunity.problem}\n- Why now: ${r.opportunity.whyNow}`,

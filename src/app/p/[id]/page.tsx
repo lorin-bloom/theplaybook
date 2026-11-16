@@ -14,8 +14,8 @@ async function load(id: string) {
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
   const p = await load((await params).id);
-  if (!p?.report) return { title: "The Playbook" };
-  return { title: `${p.report.productName} — The Playbook`, description: p.report.opportunity.headline, robots: p.isExample ? undefined : { index: false } };
+  if (!p?.report) return { title: "The GTM Playbook" };
+  return { title: `${p.report.productName} — The GTM Playbook`, description: p.report.opportunity.headline, robots: p.isExample ? undefined : { index: false } };
 }
 
 export default async function PlaybookPage({ params }: { params: Promise<{ id: string }> }) {

@@ -11,7 +11,7 @@ export function middleware(req: NextRequest) {
     const supplied = decoded.slice(decoded.indexOf(":") + 1);
     if (supplied.length === password.length && supplied === password) return NextResponse.next();
   }
-  return new NextResponse("Authentication required", { status: 401, headers: { "WWW-Authenticate": 'Basic realm="The Playbook admin"' } });
+  return new NextResponse("Authentication required", { status: 401, headers: { "WWW-Authenticate": 'Basic realm="The GTM Playbook admin"' } });
 }
 
 export const config = { matcher: ["/admin/:path*", "/admin"] };

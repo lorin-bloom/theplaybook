@@ -38,9 +38,9 @@ export async function checkLimits(visitor: string) {
   }
   const [all] = await db.select({ n: count() }).from(schema.playbooks).where(and(eq(schema.playbooks.isExample, false), ne(schema.playbooks.status, "error"), gte(schema.playbooks.createdAt, since)));
   if (Number(all.n) >= cfg.limits.perDay) {
-    throw new LimitError("The Playbook has hit its daily limit. Please try again tomorrow, or explore an example playbook.");
+    throw new LimitError("The GTM Playbook has hit its daily limit. Please try again tomorrow, or explore an example playbook.");
   }
   if ((await monthSpend()) + EXPECTED_PLAYBOOK_COST_USD > cfg.limits.monthlyBudgetUsd) {
-    throw new LimitError("The Playbook has reached its usage limit for this month. Explore an example playbook in the meantime.");
+    throw new LimitError("The GTM Playbook has reached its usage limit for this month. Explore an example playbook in the meantime.");
   }
 }

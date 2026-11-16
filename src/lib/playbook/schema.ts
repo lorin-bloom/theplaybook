@@ -1,5 +1,5 @@
 /**
- * The Playbook: one structured report with seven sections, written in a
+ * The GTM Playbook: one structured report with seven sections, written in a
  * single model call. Every section has a one-line headline for the board view
  * plus compact detail for the expanders (so expanding costs nothing).
  *

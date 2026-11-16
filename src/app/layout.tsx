@@ -7,7 +7,7 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 const newsreader = Newsreader({ variable: "--font-newsreader", subsets: ["latin"], style: ["normal", "italic"] });
 
 export const metadata: Metadata = {
-  title: "The Playbook — a smarter go-to-market plan, in minutes",
+  title: "The GTM Playbook — a smarter go-to-market plan, in minutes",
   description: "Tell it what you are marketing. Get a one-page go-to-market playbook: opportunity, positioning, big idea, channels, collaborators, story and game plan.",
 };
 

@@ -1,4 +1,4 @@
-# the playbook.
+# the GTM playbook.
 
 **A smarter go-to-market plan, in minutes.** Tell it what you're marketing, who it's for and what you want to achieve, optionally attach documents, and get a one-page, visual go-to-market playbook. There is no sign-up and no setup.
 

@@ -5,7 +5,7 @@ import { getConfig } from "@/lib/config";
 import { monthSpend, monthStart } from "@/lib/cost/budget";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Admin — The Playbook", robots: { index: false } };
+export const metadata = { title: "Admin — The GTM Playbook", robots: { index: false } };
 
 const usd = (n: number) => (n < 0.01 && n > 0 ? "<$0.01" : `$${n.toFixed(2)}`);
 

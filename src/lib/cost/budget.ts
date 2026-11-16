@@ -9,7 +9,7 @@ import { newId } from "@/lib/util/hash";
 
 export class BudgetExceededError extends Error {
   constructor() {
-    super("The Playbook has reached its usage limit for now. Please try again later, or explore an example playbook.");
+    super("The GTM Playbook has reached its usage limit for now. Please try again later, or explore an example playbook.");
   }
 }
 

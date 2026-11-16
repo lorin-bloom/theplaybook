@@ -14,7 +14,7 @@ import { UNTRUSTED_DATA_POLICY } from "@/lib/security/injection";
 
 export class AiNotConfiguredError extends Error {
   constructor() {
-    super("The Playbook isn’t available right now. Please try again later.");
+    super("The GTM Playbook isn’t available right now. Please try again later.");
   }
 }
 export class AiOutputError extends Error {}
