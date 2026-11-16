@@ -59,7 +59,7 @@ export default async function Admin() {
           {recent.map((p) => (
             <tr key={p.id} className="border-t">
               <td className="py-1.5 text-xs text-slate-500">{p.createdAt.toISOString().slice(0, 16).replace("T", " ")}</td>
-              <td><Link className="text-indigo-700 hover:underline" href={`/p/${p.id}`}>{p.inputs.product}</Link></td>
+              <td><Link className="text-blue-700 hover:underline" href={`/p/${p.id}`}>{p.inputs.product}</Link></td>
               <td>{p.status}{p.error ? ` — ${p.error}` : ""}</td>
               <td className="text-right">{usd(p.costUsd)}</td>
             </tr>

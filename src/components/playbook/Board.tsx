@@ -19,7 +19,7 @@ export function Board({ id, report: r, sources, thumbnails, isExample, mode }: P
   const src = (ref: string | null | undefined) => (ref ? byRef.get(ref) : undefined);
 
   return (
-    <div className="min-h-screen bg-[#f6f5f1]">
+    <div className="min-h-screen bg-[#f2f4f7]">
       <Toolbar id={id} />
       <main className="mx-auto max-w-6xl px-4 pb-20 pt-8 sm:px-6">
         <header className="mb-8">
@@ -34,7 +34,7 @@ export function Board({ id, report: r, sources, thumbnails, isExample, mode }: P
 
         <div className="grid gap-4 md:grid-cols-6">
           {/* 1. Opportunity */}
-          <Card n={1} title="The Opportunity" question="Where should we focus, and why?" className="md:col-span-6 bg-gradient-to-br from-indigo-700 via-indigo-800 to-slate-900 text-white" dark>
+          <Card n={1} title="The Opportunity" question="Where should we focus, and why?" className="md:col-span-6 bg-gradient-to-br from-blue-700 via-blue-800 to-slate-900 text-white" dark>
             <p className="max-w-4xl font-serif text-3xl leading-tight sm:text-4xl">{r.opportunity.headline}</p>
             <div className="mt-6 grid gap-3 sm:grid-cols-3">
               <Fact dark label="Who">{r.opportunity.audience}</Fact>
@@ -55,7 +55,7 @@ export function Board({ id, report: r, sources, thumbnails, isExample, mode }: P
               </div>
               <ol className="space-y-2">
                 {r.positioning.pillars.slice(0, 3).map((p, i) => (
-                  <li key={i} className="flex items-start gap-3 rounded-xl bg-[#f6f5f1] p-3">
+                  <li key={i} className="flex items-start gap-3 rounded-xl bg-[#f2f4f7] p-3">
                     <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-ink text-xs font-bold text-white">{i + 1}</span>
                     <span><span className="font-semibold">{p.name}.</span> <span className="text-slate-600">{p.line}</span></span>
                   </li>
@@ -69,7 +69,7 @@ export function Board({ id, report: r, sources, thumbnails, isExample, mode }: P
           </Card>
 
           {/* 3. Big Idea */}
-          <Card n={3} title="The Big Idea" question="What’s the memorable idea?" className="md:col-span-6 bg-gradient-to-br from-amber-100 via-orange-50 to-rose-100">
+          <Card n={3} title="The Big Idea" question="What’s the memorable idea?" className="md:col-span-6 bg-gradient-to-br from-cyan-50 via-sky-100 to-blue-200">
             <div className="grid gap-8 lg:grid-cols-[1.1fr_1fr] lg:items-center">
               <div>
                 <p className="font-serif text-5xl leading-none tracking-tight text-ink sm:text-6xl">{r.bigIdea.campaignName}</p>
@@ -92,16 +92,16 @@ export function Board({ id, report: r, sources, thumbnails, isExample, mode }: P
 
           {/* Launch moment */}
           {r.launch && (
-            <Card n={4} title="The Launch" question="When and how do we go live?" className="md:col-span-6 bg-gradient-to-br from-slate-900 via-indigo-950 to-indigo-800 text-white" dark>
+            <Card n={4} title="The Launch" question="When and how do we go live?" className="md:col-span-6 bg-gradient-to-br from-slate-900 via-blue-950 to-blue-800 text-white" dark>
               <div className="grid gap-8 lg:grid-cols-[1.2fr_1fr] lg:items-center">
                 <div>
-                  <div className="text-xs font-semibold uppercase tracking-wider text-amber-300">{r.launch.when}</div>
+                  <div className="text-xs font-semibold uppercase tracking-wider text-cyan-300">{r.launch.when}</div>
                   <p className="mt-2 font-serif text-3xl leading-tight sm:text-4xl">{r.launch.moment}</p>
                   <ol className="relative mt-6 space-y-4 border-l border-white/20 pl-4">
                     {r.launch.hype.slice(0, 3).map((h, i) => (
                       <li key={i} className="relative">
-                        <span className="absolute -left-[21px] top-1 size-2.5 rounded-full bg-amber-300 ring-4 ring-indigo-950" />
-                        <div className="text-xs font-semibold uppercase tracking-wider text-indigo-200">{h.when}</div>
+                        <span className="absolute -left-[21px] top-1 size-2.5 rounded-full bg-cyan-300 ring-4 ring-blue-950" />
+                        <div className="text-xs font-semibold uppercase tracking-wider text-blue-200">{h.when}</div>
                         <div className="text-sm">{h.move}</div>
                       </li>
                     ))}
@@ -124,15 +124,15 @@ export function Board({ id, report: r, sources, thumbnails, isExample, mode }: P
               {r.channels.slice(0, 3).map((c, i) => {
                 const ex = src(c.exampleRef);
                 return (
-                  <div key={i} className="flex flex-col rounded-2xl bg-[#f6f5f1] p-4">
+                  <div key={i} className="flex flex-col rounded-2xl bg-[#f2f4f7] p-4">
                     <div className="flex items-baseline gap-2">
-                      <span className="font-serif text-3xl text-indigo-600">#{i + 1}</span>
+                      <span className="font-serif text-3xl text-blue-600">#{i + 1}</span>
                       <span className="text-lg font-semibold">{c.platform}</span>
                     </div>
                     <p className="mt-1 text-sm text-slate-600">{c.tactic}</p>
                     <div className="mt-4"><MockCreative mock={c.mock} brand={r.productName} platform={c.platform} /></div>
                     <details className="group mt-auto pt-3">
-                      <summary className="cursor-pointer list-none text-sm font-medium text-indigo-700"><span className="group-open:hidden">How to run it →</span><span className="hidden group-open:inline">Hide</span></summary>
+                      <summary className="cursor-pointer list-none text-sm font-medium text-blue-700"><span className="group-open:hidden">How to run it →</span><span className="hidden group-open:inline">Hide</span></summary>
                       <div className="mt-2 space-y-2 text-sm">
                         <div className="flex flex-wrap gap-1.5 text-[11px]">
                           <Tag>{c.format}</Tag>
@@ -161,14 +161,14 @@ export function Board({ id, report: r, sources, thumbnails, isExample, mode }: P
               {r.collaborators.slice(0, 3).map((c, i) => {
                 const s = src(c.sourceRefs[0]);
                 return (
-                  <li key={i} className="rounded-2xl bg-[#f6f5f1] p-4">
+                  <li key={i} className="rounded-2xl bg-[#f2f4f7] p-4">
                     <div className="flex items-center justify-between gap-2">
                       <span className="font-semibold">{c.name}</span>
                       <span className="rounded-full bg-white px-2 py-0.5 text-[11px] font-medium capitalize text-slate-600 ring-1 ring-line">{c.type}</span>
                     </div>
                     <p className="mt-1 text-sm text-slate-600" title={c.why}>{c.activation}</p>
                     {s?.url && (
-                      <a href={s.url} target="_blank" rel="noopener noreferrer nofollow" className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-indigo-700 hover:underline">
+                      <a href={s.url} target="_blank" rel="noopener noreferrer nofollow" className="mt-2 inline-flex items-center gap-1 text-xs font-medium text-blue-700 hover:underline">
                         {new URL(s.url).hostname.replace(/^www\./, "")} <ArrowUpRight className="size-3" />
                       </a>
                     )}
@@ -180,7 +180,7 @@ export function Board({ id, report: r, sources, thumbnails, isExample, mode }: P
 
           {/* 6. Story */}
           <Card n={r.launch ? 7 : 6} title="The Story Worth Telling" question="Why should anyone care or talk about this?" className="md:col-span-3 bg-white">
-            <div className="rounded-2xl border-y-4 border-double border-ink/80 bg-[#fbfaf7] px-4 py-5 text-center">
+            <div className="rounded-2xl border-y-4 border-double border-ink/80 bg-[#fafbfc] px-4 py-5 text-center">
               <div className="text-[10px] font-semibold uppercase tracking-[0.25em] text-slate-400">The headline we want</div>
               <p className="mt-2 font-serif text-2xl leading-tight">{r.story.sampleHeadline}</p>
             </div>
@@ -191,7 +191,7 @@ export function Board({ id, report: r, sources, thumbnails, isExample, mode }: P
                 <div className="flex flex-wrap gap-1.5">
                   {r.story.opportunities.slice(0, 3).map((o, i) => {
                     const s = src(o.sourceRef);
-                    const cls = "inline-flex items-center gap-1 rounded-full bg-[#f6f5f1] px-3 py-1 text-sm";
+                    const cls = "inline-flex items-center gap-1 rounded-full bg-[#f2f4f7] px-3 py-1 text-sm";
                     return s?.url ? (
                       <a key={i} href={s.url} target="_blank" rel="noopener noreferrer nofollow" title={o.why} className={cx(cls, "hover:bg-slate-200")}>{o.outlet} <ArrowUpRight className="size-3" /></a>
                     ) : (
@@ -216,7 +216,7 @@ export function Board({ id, report: r, sources, thumbnails, isExample, mode }: P
                 <ol className="space-y-3">
                   {r.gamePlan.actions.slice(0, 3).map((a, i) => (
                     <li key={i} className="flex gap-3">
-                      <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-indigo-500 text-xs font-bold">{i + 1}</span>
+                      <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-blue-500 text-xs font-bold">{i + 1}</span>
                       <span className="font-medium">{a.action}</span>
                     </li>
                   ))}
@@ -227,8 +227,8 @@ export function Board({ id, report: r, sources, thumbnails, isExample, mode }: P
                 <ol className="relative space-y-4 border-l border-white/20 pl-4">
                   {r.gamePlan.timeline.slice(0, 3).map((t, i) => (
                     <li key={i} className="relative">
-                      <span className="absolute -left-[21px] top-1 size-2.5 rounded-full bg-indigo-400 ring-4 ring-ink" />
-                      <div className="text-xs font-semibold uppercase tracking-wider text-indigo-300">{t.when}</div>
+                      <span className="absolute -left-[21px] top-1 size-2.5 rounded-full bg-blue-400 ring-4 ring-ink" />
+                      <div className="text-xs font-semibold uppercase tracking-wider text-blue-300">{t.when}</div>
                       <div className="text-sm">{t.focus}</div>
                     </li>
                   ))}
@@ -274,11 +274,11 @@ function Card({ n, title, question, className, dark, children }: { n: number; ti
 function More({ children, dark }: { children: ReactNode; dark?: boolean }) {
   return (
     <details className="group mt-5">
-      <summary className={cx("cursor-pointer list-none text-sm font-medium", dark ? "text-indigo-200" : "text-indigo-700")}>
+      <summary className={cx("cursor-pointer list-none text-sm font-medium", dark ? "text-blue-200" : "text-blue-700")}>
         <span className="group-open:hidden">Why this →</span>
         <span className="hidden group-open:inline">Hide reasoning</span>
       </summary>
-      <div className={cx("mt-3 space-y-4 rounded-2xl p-4 text-sm", dark ? "bg-white/10" : "bg-[#f6f5f1]")}>{children}</div>
+      <div className={cx("mt-3 space-y-4 rounded-2xl p-4 text-sm", dark ? "bg-white/10" : "bg-[#f2f4f7]")}>{children}</div>
     </details>
   );
 }
@@ -305,7 +305,7 @@ function Bullets({ items }: { items: string[] }) {
 }
 
 function Steps({ items }: { items: string[] }) {
-  return <ol className="space-y-1.5">{items.map((t, i) => <li key={i} className="flex gap-2"><span className="font-mono text-xs leading-5 text-indigo-600">{i + 1}.</span><span>{t}</span></li>)}</ol>;
+  return <ol className="space-y-1.5">{items.map((t, i) => <li key={i} className="flex gap-2"><span className="font-mono text-xs leading-5 text-blue-600">{i + 1}.</span><span>{t}</span></li>)}</ol>;
 }
 
 function Evidence({ claims, byRef, dark }: { claims: Claim[]; byRef: Map<string, PlaybookSource>; dark?: boolean }) {
@@ -321,7 +321,7 @@ function Evidence({ claims, byRef, dark }: { claims: Claim[]; byRef: Map<string,
             {c.sourceRefs.map((ref) => {
               const s = byRef.get(ref);
               return s?.url ? (
-                <a key={ref} href={s.url} target="_blank" rel="noopener noreferrer nofollow" title={s.title} className={cx("font-mono text-[10px] underline", dark ? "text-indigo-200" : "text-indigo-600")}>{ref}</a>
+                <a key={ref} href={s.url} target="_blank" rel="noopener noreferrer nofollow" title={s.title} className={cx("font-mono text-[10px] underline", dark ? "text-blue-200" : "text-blue-600")}>{ref}</a>
               ) : (
                 <span key={ref} title={s?.title} className="font-mono text-[10px] opacity-60">{ref}</span>
               );
@@ -341,7 +341,7 @@ function Poster({ example, brand }: { example: PlaybookReport["bigIdea"]["exampl
       <p className="mt-4 text-sm leading-relaxed text-white/75">{example.body}</p>
       <div className="mt-8 flex items-center justify-between">
         <span className="text-xs font-semibold text-white/60">{brand}</span>
-        <span className="rounded-full bg-amber-300 px-4 py-1.5 text-sm font-semibold text-ink">{example.cta}</span>
+        <span className="rounded-full bg-cyan-300 px-4 py-1.5 text-sm font-semibold text-ink">{example.cta}</span>
       </div>
     </div>
   );
@@ -351,7 +351,7 @@ function Toolbar({ id }: { id: string }) {
   const [copied, setCopied] = useState(false);
   const btn = "inline-flex h-9 items-center gap-1.5 rounded-full px-3.5 text-sm font-medium transition";
   return (
-    <div className="no-print sticky top-0 z-30 border-b border-black/5 bg-[#f6f5f1]/90 backdrop-blur">
+    <div className="no-print sticky top-0 z-30 border-b border-black/5 bg-[#f2f4f7]/90 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6">
         <Link href="/"><Wordmark size="sm" /></Link>
         <div className="flex flex-wrap items-center gap-2">
@@ -390,7 +390,7 @@ function Footer({ sources, assumptions, isExample }: { sources: PlaybookSource[]
           <ol className="mt-2 grid gap-x-6 gap-y-1 md:grid-cols-2 [&>li]:min-w-0">
             {sources.map((s) => (
               <li key={s.ref} className="flex min-w-0 gap-2">
-                <span className="w-7 shrink-0 font-mono text-xs leading-5 text-indigo-600">{s.ref}</span>
+                <span className="w-7 shrink-0 font-mono text-xs leading-5 text-blue-600">{s.ref}</span>
                 {s.url ? (
                   <a href={s.url} target="_blank" rel="noopener noreferrer nofollow" className="inline-flex min-w-0 items-center gap-1 truncate hover:text-ink">
                     <span className="truncate">{s.title}</span> <ArrowUpRight className="size-3 shrink-0" />
