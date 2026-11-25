@@ -9,7 +9,7 @@ import type { PlaybookReport, PlaybookSource } from "./schema";
 import { DEMO_SOURCES } from "./exampleSources";
 import { fetchThumbnails } from "./thumbnails";
 
-export const EXAMPLE_VERSION = "example-v8";
+export const EXAMPLE_VERSION = "example-v9";
 
 /** Which research bucket each example source belongs to (same rules as generated playbooks). */
 const EXAMPLE_TOPICS: Record<string, string> = { S13: "examples", S14: "examples", S15: "examples", S4: "people", S11: "people", S16: "people", S17: "people", S21: "people", S22: "people" };
@@ -18,19 +18,19 @@ const v = (text: string, ...sourceRefs: string[]) => ({ text, status: "verified"
 
 const chatgptBusiness: PlaybookReport = {
   productName: "ChatGPT Business",
-  oneLiner: "One secure workspace for a small team, its apps, its knowledge and its agents.",
+  oneLiner: "Where a small team, its tools and its AI agents work side by side.",
   opportunity: {
     headline: "Own the someday list: the ambitious work small teams keep putting off because today is already full.",
     audience: "Owners of 2–50 person shops, studios and service firms",
     problem: "The idea that would grow the business waits behind everything due today.",
     whyNow: "The holiday rush pushes every big idea to “after the holidays.” January is when owners look at the list again.",
     rationale: [
-      "OpenAI’s own promise is ambition: bigger capability for lean teams, including work that would otherwise fall to the wayside.",
+      "OpenAI’s own promise is ambition: helping lean teams reach further, including the jobs they’d never get around to.",
       "Its usage data points the same way. Small teams lean on agents for finance, supply chain, legal and marketing, where they rarely have a specialist.",
       "Rivals sell time saved on everyday tasks. The thing an owner never got to start is a bigger, more personal promise.",
     ],
     evidence: [
-      v("OpenAI says ChatGPT Work can take on tasks that would otherwise be outsourced or fall to the wayside.", "S19"),
+      v("OpenAI positions ChatGPT Work for jobs owners would otherwise send out or never get to.", "S19"),
       v("Finance, supply chain, legal and marketing each take at least 3x the share of small firms’ agent use vs. larger firms’.", "S23"),
       v("Of twelve ChatGPT ads tested, only the grounded, human “Family Farm” beat the category benchmark.", "S20"),
     ],
@@ -39,12 +39,12 @@ const chatgptBusiness: PlaybookReport = {
     valueProposition: "The idea you’ve been saving for someday, ready to start Monday.",
     differentiator: "Suite AI helps inside each app. ChatGPT Business works across the apps, files and know-how a small team already has, and sees the project through.",
     pillars: [
-      { name: "Everyone in one place", line: "Your team, your apps and what your business knows, in one workspace." },
-      { name: "Always moving", line: "ChatGPT Work, Codex and your dots carry projects forward." },
-      { name: "Yours, and secure", line: "One admin, clear controls, no training on your data by default." },
+      { name: "Everyone in one place", line: "The people, the tools and the know-how, finally in the same room." },
+      { name: "Always moving", line: "Agents pick up the next step while you serve the next customer." },
+      { name: "Yours, and secure", line: "You decide who sees what, and your data isn’t training material by default." },
     ],
     proof: [
-      v("Brings team, business knowledge and apps together in one secure workspace.", "S18"),
+      v("Teams, company know-how and connected tools share a single workspace.", "S18"),
       v("Includes ChatGPT Work, Codex and dots.", "S18", "S25"),
       v("No training on business data by default.", "S18", "S25"),
     ],
@@ -68,7 +68,7 @@ const chatgptBusiness: PlaybookReport = {
       { when: "Mid-December", move: "Owners post their own someday lists. Creators get early access and each adopt one." },
       { when: "January 4", move: "Every billboard changes to “Someday is Monday,” then gets crossed out as teams finish." },
     ],
-    post: "Sell the hot sauce online.\nOpen on Sundays.\nFinally fix the price list.\n\nSomeday is Monday.\n\nBring your team, your apps and everything you know into one place. ChatGPT Business, live now.",
+    post: "Sell the hot sauce online.\nOpen on Sundays.\nFinally fix the price list.\n\nSomeday is Monday.\n\nYour people and everything they know, finally working from the same page. ChatGPT Business, live now.",
   },
   channels: [
     {
