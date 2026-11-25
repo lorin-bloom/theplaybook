@@ -9,7 +9,7 @@ import type { PlaybookReport, PlaybookSource } from "./schema";
 import { DEMO_SOURCES } from "./exampleSources";
 import { fetchThumbnails } from "./thumbnails";
 
-export const EXAMPLE_VERSION = "example-v6";
+export const EXAMPLE_VERSION = "example-v7";
 
 /** Which research bucket each example source belongs to (same rules as generated playbooks). */
 const EXAMPLE_TOPICS: Record<string, string> = { S13: "examples", S14: "examples", S15: "examples", S4: "people", S11: "people", S16: "people", S17: "people", S21: "people", S22: "people" };
@@ -23,10 +23,10 @@ const chatgptBusiness: PlaybookReport = {
     headline: "Help small firms win the bigger work that lets them grow, and hire.",
     audience: "Owners of 5–50 person agencies, studios and shops",
     problem: "They have the talent. Proposals, follow-ups and admin eat the hours they need to go after bigger clients.",
-    whyNow: "AI is sold as a way to need fewer people. Owners who want to add people aren’t being spoken to.",
+    whyNow: "Microsoft and Google bundle AI into suites on price. Growth is a promise bundling can’t match.",
     rationale: [
       "Most small businesses already use AI, so awareness isn’t the gap. A reason the whole team would welcome it is.",
-      "Microsoft and Google bundle AI into suites on price. Growth is a promise that bundling can’t match.",
+      "Owners don’t want more software. They want the next client, and the next person on the team.",
       "It fits how OpenAI already speaks to small businesses (ambition, bigger capability) and the kind of ad that has worked best for it: real people over screens of text.",
     ],
     evidence: [
@@ -55,7 +55,7 @@ const chatgptBusiness: PlaybookReport = {
     concept: "Small businesses use ChatGPT Business to go after bigger work and win it. OpenAI then gives them its ad space, to advertise the people they need next. Every ad is a real opening.",
     visualDirection: "Hand-painted help-wanted signs at billboard scale. Real teams in real shops, saving a place for someone new. Almost no text.",
     example: { format: "Billboard + film", headline: "This agency has 12 people. It’s looking for number 13.", body: "They pitched a client they used to think was too big for them, and won. Now there’s a desk by the window with no one at it.", cta: "Apply to be No. 13" },
-    whyItWorks: "Everyone expects an AI ad to be about needing fewer people. This one ends with a job. It’s surprising, generous, and proves the product through what it made possible.",
+    whyItWorks: "An AI ad that ends with a job is a surprise. It’s generous, easy to share, and shows the product through what people did with it.",
     steps: ["Find 12 small businesses that won bigger work and are hiring", "Turn each opening into a billboard and a film", "Follow the hires, and tell the story of their first day"],
     inspirationRef: "S13",
     inspirationNote: "Google gave small businesses the screen. Give them something they need: applicants.",
@@ -117,8 +117,8 @@ const chatgptBusiness: PlaybookReport = {
     { name: "How I Built This", type: "media", why: "The show owners listen to for origin stories.", activation: "Sponsor “The First Ten Hires”: founders on the people who changed their company.", sourceRefs: ["S21"] },
   ],
   story: {
-    angle: "While everyone asks what AI means for jobs, an AI company spends its ad budget on job openings.",
-    whyInteresting: "It answers the biggest worry about AI with something people can check: real businesses, real openings and real first days. Reporters get local stories in 12 cities.",
+    angle: "An AI company hands its ad space to small businesses, so they can find their next great hire.",
+    whyInteresting: "It turns an AI launch into something people can check: real businesses, real openings and real first days. Reporters get local stories in 12 cities.",
     sampleHeadline: "OpenAI’s biggest new ad campaign is a help-wanted sign",
     opportunities: [
       { outlet: "Adweek", why: "Covers how AI brands court small businesses, and the flip is the story.", sourceRef: "S17" },
