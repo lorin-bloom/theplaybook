@@ -9,7 +9,7 @@ import type { PlaybookReport, PlaybookSource } from "./schema";
 import { DEMO_SOURCES } from "./exampleSources";
 import { fetchThumbnails } from "./thumbnails";
 
-export const EXAMPLE_VERSION = "example-v3";
+export const EXAMPLE_VERSION = "example-v4";
 
 /** Which research bucket each example source belongs to (same rules as generated playbooks). */
 const EXAMPLE_TOPICS: Record<string, string> = { S13: "examples", S14: "examples", S15: "examples", S4: "people", S11: "people", S16: "people", S17: "people" };
@@ -40,15 +40,28 @@ const chatgptBusiness: PlaybookReport = {
   bigIdea: {
     campaignName: "Small Team. Big Output.",
     hook: "Twelve people. One shared brain.",
-    concept: "Real small teams show one real workflow — proposals, pipeline reviews, onboarding — done in an afternoon with one shared ChatGPT, citations on screen.",
-    visualDirection: "Documentary, warm and practical: real offices, real screens, the team in frame, the cited answer as the hero shot.",
-    example: { format: "LinkedIn carousel", headline: "How a 12-person agency writes proposals in an hour", body: "Brief in Drive. Client thread in Slack. Deal history in the CRM. One question to their shared ChatGPT — and a cited first draft before lunch.", cta: "Set up your team" },
-    whyItWorks: "It proves usefulness with a real job instead of claiming capability — and makes the team, not the tool, the hero.",
-    steps: ["Recruit six small teams willing to be filmed", "Shoot one workflow per team, citations on screen", "Cut each into a long video, a carousel and two Shorts"],
+    concept: "A film and billboard series that puts real small teams’ headcounts on the wall, then shows the outsized work they ship from one shared ChatGPT.",
+    visualDirection: "Documentary, warm and practical: the real team in frame, its headcount set huge, the finished work beside it.",
+    example: { format: "Film + out-of-home", headline: "This agency has 12 people. Its proposals look like 120.", body: "A billboard on the agency’s own street, its real headcount set ten feet tall. The film shows the Tuesday behind it: one brief, one shared ChatGPT, one cited draft before lunch.", cta: "Set up your team" },
+    whyItWorks: "It makes the team the hero, turns being small into the brag, and proves usefulness with a real job.",
+    steps: ["Recruit six small teams willing to be filmed", "Put each team’s headcount on a billboard on its own street", "Cut each story into a film, a carousel and two Shorts"],
     inspirationRef: "S13",
     inspirationNote: "Borrow real owners as the heroes; swap one-business vignettes for one-team workflows.",
   },
   channels: [
+    {
+      platform: "X",
+      role: "Own launch day",
+      tactic: "Livestream the launch, then post one small team’s headcount and finished work every hour for a day.",
+      format: "Livestream + hourly clips",
+      audience: "Founders and the AI community",
+      cadence: "Launch day, then weekly",
+      kpi: "Live viewers → team trials",
+      mock: { kind: "social_post", headline: "Team of 12. 9:00 am.", body: "One client brief, one shared workspace. Their proposal goes out at 11:40. Next team in an hour." },
+      exampleRef: null,
+      exampleNote: "",
+      steps: ["Book 12 teams, one per hour", "Run the livestream with a real team on stage", "Clip and post each story within the hour"],
+    },
     {
       platform: "LinkedIn",
       role: "Reach the owners and ops leads who choose team tools",
@@ -75,19 +88,6 @@ const chatgptBusiness: PlaybookReport = {
       exampleNote: "A competitor proves the long-form brand film; pair that ambition with practical demos.",
       steps: ["Script 6 workflows", "Film on location", "Publish with chaptered, search-led titles"],
     },
-    {
-      platform: "HubSpot community",
-      role: "Meet sales teams where their CRM lives",
-      tactic: "A co-hosted ‘AI-ready pipeline review’ session and template pack built on the existing ChatGPT connector",
-      format: "Live session + templates",
-      audience: "SMB sales and marketing leads",
-      cadence: "Quarterly flagship",
-      kpi: "Partner-sourced workspaces",
-      mock: { kind: "event", headline: "Live: run Monday pipeline review with ChatGPT", body: "Bring your HubSpot pipeline. Leave with templates for account research, QBR prep and weekly reviews." },
-      exampleRef: null,
-      exampleNote: "",
-      steps: ["Propose a joint session", "Build 5 templates", "Promote via partner newsletter"],
-    },
   ],
   collaborators: [
     { name: "HubSpot", type: "partner", why: "Its SMB customers live in the CRM — a natural home for team AI workflows.", activation: "Joint pipeline-review series and template pack for SMB sales teams.", sourceRefs: [] },
@@ -106,17 +106,26 @@ const chatgptBusiness: PlaybookReport = {
     risks: ["Avoid any framing that implies watching employees’ personal accounts.", "Don’t claim productivity numbers without customer data."],
     evidence: [v("Most AI-using small businesses reported growing their workforce.", "S5")],
   },
-  launch: null,
+  launch: {
+    moment: "A livestream hosted from a 12-person company, where the team does a real day’s work in one shared ChatGPT.",
+    when: "Launch day, week 6",
+    hype: [
+      { when: "4 weeks out", move: "Billboards show only a headcount and a street name. No logo, no product." },
+      { when: "2 weeks out", move: "Invite-only team waitlist, plus early access for creators who hold their videos until launch." },
+      { when: "Launch day", move: "The livestream reveals the teams behind the numbers, and the waitlist opens in waves." },
+    ],
+    post: "12 people. 1 shared ChatGPT. We’re spending today inside a real small company to show what that looks like. Meet ChatGPT Business. Live now.",
+  },
   gamePlan: {
     actions: [
-      { action: "Launch a consent-first ‘bring your team’ invite flow", why: "Turns existing users into internal champions." },
-      { action: "Film the first three ‘Small Team. Big Output.’ episodes", why: "Proof beats claims against bundled AI." },
+      { action: "Book the six small teams and their billboards", why: "The whole idea rests on real people." },
+      { action: "Give creators early access under embargo", why: "Independent proof lands on launch day." },
       { action: "Pitch HubSpot a joint pipeline-review session", why: "High-intent audience, integration already exists." },
     ],
     timeline: [
-      { when: "Weeks 1–4", focus: "Invite flow test + recruit teams" },
-      { when: "Weeks 5–8", focus: "Series launch + LinkedIn" },
-      { when: "Weeks 9–12", focus: "Partner session + scale winners" },
+      { when: "Weeks 1–2", focus: "Recruit teams, headcount billboards go up" },
+      { when: "Weeks 3–6", focus: "Waitlist, creator access, launch livestream" },
+      { when: "Weeks 7–12", focus: "YouTube series, HubSpot session, scale winners" },
     ],
     kpis: [
       { name: "Activated team workspaces", target: "3+ weekly active members by day 30" },

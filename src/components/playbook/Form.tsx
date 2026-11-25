@@ -4,8 +4,7 @@ import { useRouter } from "next/navigation";
 import { ArrowRight, Loader2, Paperclip, X } from "lucide-react";
 import { cx } from "@/components/ui";
 
-const field =
-  "w-full rounded-2xl border border-black/10 bg-white px-4 py-3.5 text-[15px] shadow-sm outline-none transition placeholder:text-slate-400 focus:border-blue-400 focus:ring-4 focus:ring-blue-100";
+const field = "w-full bg-transparent text-base text-ink outline-none placeholder:text-ink/45";
 
 export function PlaybookForm() {
   const router = useRouter();
@@ -38,59 +37,70 @@ export function PlaybookForm() {
   }
 
   return (
-    <form onSubmit={submit} className="space-y-5">
-      <Q label="What are you marketing?">
-        <input name="product" required minLength={2} maxLength={120} className={field} placeholder="e.g. Notion AI, a meal-kit app, our new API" />
-      </Q>
-      <Q label="Tell us about it">
-        <textarea name="about" maxLength={3000} rows={4} className={cx(field, "resize-none")} placeholder="What it does, what makes it different, anything we should know." />
-      </Q>
-      <div className="grid gap-5 sm:grid-cols-2">
-        <Q label="Who’s it for?">
-          <input name="audience" maxLength={300} className={field} placeholder="e.g. B2B sales teams" />
-        </Q>
-        <Q label="What’s the goal?">
-          <input name="goal" maxLength={300} className={field} placeholder="e.g. 1,000 sign-ups by spring" />
-        </Q>
+    <form onSubmit={submit} className="overflow-hidden rounded-md bg-sage text-ink shadow-[0_24px_60px_-20px_rgba(0,0,0,0.5)]">
+      <Row label="What are you marketing?">
+        <input name="product" required minLength={2} maxLength={120} className={cx(field, "font-serif text-[1.65rem] leading-tight tracking-[-0.015em]")} placeholder="Notion AI, a meal-kit app…" />
+      </Row>
+      <Row label="Tell us about it" optional>
+        <textarea name="about" maxLength={3000} rows={2} className={cx(field, "block resize-none leading-snug")} placeholder="What it does, what makes it different, anything we should know." />
+      </Row>
+      <div className="grid sm:grid-cols-2 sm:divide-x sm:divide-forest/15">
+        <Row label="Who’s it for?" optional>
+          <input name="audience" maxLength={300} className={field} placeholder="B2B sales teams" />
+        </Row>
+        <Row label="What’s the goal?" optional>
+          <input name="goal" maxLength={300} className={field} placeholder="1,000 sign-ups by spring" />
+        </Row>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2">
-        <button type="button" onClick={() => fileRef.current?.click()} disabled={files.length >= 3} className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm text-slate-600 ring-1 ring-black/10 hover:bg-white disabled:opacity-40">
-          <Paperclip className="size-4" /> Add documents <span className="text-slate-400">(optional)</span>
-        </button>
-        <input
-          ref={fileRef}
-          name="files"
-          type="file"
-          multiple
-          accept=".pdf,.docx,.txt,.md,.csv"
-          className="sr-only"
-          onChange={(e) => setFiles([...files, ...Array.from(e.target.files ?? [])].slice(0, 3))}
-        />
-        {files.map((f, i) => (
-          <span key={i} className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-xs ring-1 ring-black/10">
-            {f.name}
-            <button type="button" aria-label={`Remove ${f.name}`} onClick={() => setFiles(files.filter((_, j) => j !== i))}><X className="size-3" /></button>
-          </span>
-        ))}
+      <div className="px-5 py-4">
+        {files.length > 0 && (
+          <div className="mb-3">
+            <div className="flex flex-wrap gap-1.5">
+              {files.map((f, i) => (
+                <span key={i} className="inline-flex max-w-full items-center gap-1.5 rounded bg-paper px-2 py-1 text-xs">
+                  <span className="truncate">{f.name}</span>
+                  <button type="button" aria-label={`Remove ${f.name}`} onClick={() => setFiles(files.filter((_, j) => j !== i))}><X className="size-3" /></button>
+                </span>
+              ))}
+            </div>
+            <p className="mt-2 text-xs text-muted">PDF, Word, text or CSV, up to 4 MB in total. Used to write your playbook, then discarded. Never stored.</p>
+          </div>
+        )}
+        {error && <p className="mb-3 rounded bg-red-50 px-3 py-2.5 text-sm text-red-800" role="alert">{error}</p>}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <button type="button" onClick={() => fileRef.current?.click()} disabled={files.length >= 3} className="inline-flex items-center gap-1.5 py-2 text-sm text-forest-mid transition hover:text-ink disabled:opacity-40">
+            <Paperclip className="size-4" /> Add documents
+          </button>
+          <input
+            ref={fileRef}
+            name="files"
+            type="file"
+            multiple
+            accept=".pdf,.docx,.txt,.md,.csv"
+            className="sr-only"
+            tabIndex={-1}
+            onChange={(e) => setFiles([...files, ...Array.from(e.target.files ?? [])].slice(0, 3))}
+          />
+          <button disabled={busy} className="group inline-flex h-12 flex-1 items-center justify-center gap-2.5 whitespace-nowrap rounded bg-forest px-4 text-[15px] font-medium text-sage transition hover:bg-forest-deep active:translate-y-px disabled:opacity-70 sm:flex-none sm:px-6">
+            {busy && <Loader2 className="size-4 animate-spin" />}
+            {busy ? "Starting…" : "Make my playbook"}
+            {!busy && <ArrowRight className="size-4 text-lime transition group-hover:translate-x-1" />}
+          </button>
+        </div>
       </div>
-      {files.length > 0 && <p className="-mt-2 text-xs text-slate-500">PDF, Word, text or CSV · up to 4 MB in total. Used to write your playbook, then discarded — never stored.</p>}
-
-      {error && <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700" role="alert">{error}</p>}
-
-      <button disabled={busy} className="group inline-flex w-full items-center justify-center gap-2 rounded-full bg-ink px-6 py-4 text-base font-medium text-white shadow-lg transition hover:bg-slate-800 disabled:opacity-70">
-        {busy ? <Loader2 className="size-5 animate-spin" /> : null}
-        {busy ? "Starting…" : "Make my playbook"}
-        {!busy && <ArrowRight className="size-5 transition group-hover:translate-x-0.5" />}
-      </button>
     </form>
   );
 }
 
-function Q({ label, children }: { label: string; children: React.ReactNode }) {
+/** One ruled line of the brief. The whole row is the click target; focus marks it with a forest edge. */
+function Row({ label, optional, children }: { label: string; optional?: boolean; children: React.ReactNode }) {
   return (
-    <label className="block">
-      <span className="mb-1.5 block font-serif text-xl text-ink">{label}</span>
+    <label className="block cursor-text border-b border-forest/15 px-5 pb-3.5 pt-3 transition-colors focus-within:bg-paper focus-within:shadow-[inset_3px_0_0_var(--color-forest-mid)] hover:bg-paper/50">
+      <span className="mb-1 flex items-baseline justify-between text-[13px] font-medium text-forest-mid">
+        {label}
+        {optional && <span className="font-normal text-muted">Optional</span>}
+      </span>
       {children}
     </label>
   );

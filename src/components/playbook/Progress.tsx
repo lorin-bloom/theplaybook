@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Check, Loader2 } from "lucide-react";
+import { PlayDiagram } from "./PlayDiagram";
 import { Wordmark } from "./Wordmark";
 
 const STEPS = [
@@ -35,30 +36,31 @@ export function Progress({ id, product, initialStage }: { id: string; product: s
 
   const current = Math.max(0, STEPS.findIndex((s) => s.match.test(stage)));
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-[#f2f4f7] px-4">
-      <Link href="/"><Wordmark size="sm" /></Link>
-      <div className="mt-10 w-full max-w-md rounded-3xl bg-white p-8 shadow-sm ring-1 ring-black/5">
-        <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">Building your playbook</div>
-        <h1 className="mt-2 font-serif text-3xl">{product}</h1>
+    <div className="flex min-h-screen flex-col bg-forest text-sage">
+      <header className="mx-auto w-full max-w-6xl px-5 py-5 sm:px-8"><Link href="/"><Wordmark /></Link></header>
+      <main className="mx-auto flex w-full max-w-xl flex-1 flex-col justify-center px-5 pb-20">
+        <p className="text-sm text-sage/70">{error ? "We hit a problem with" : "Drawing up the plan for"}</p>
+        <h1 className="mt-1 break-words font-serif text-4xl leading-tight tracking-[-0.02em]">{product}</h1>
         {error ? (
           <div className="mt-6">
-            <p className="rounded-2xl bg-red-50 p-4 text-sm text-red-700">{error}</p>
-            <Link href="/" className="mt-4 inline-block text-sm font-medium text-blue-700 hover:underline">← Try again</Link>
+            <p className="rounded bg-red-50 p-4 text-sm text-red-800" role="alert">{error}</p>
+            <Link href="/" className="mt-4 inline-block text-sm underline underline-offset-4">Try again</Link>
           </div>
         ) : (
           <>
-            <ol className="mt-6 space-y-3">
+            <PlayDiagram progress={(current + 0.6) / STEPS.length} className="mt-8 w-full" />
+            <ol className="mt-8 grid gap-2.5 sm:grid-cols-2" aria-live="polite">
               {STEPS.map((s, i) => (
-                <li key={s.label} className="flex items-center gap-3 text-sm">
-                  {i < current ? <Check className="size-4 text-emerald-500" /> : i === current ? <Loader2 className="size-4 animate-spin text-blue-600" /> : <span className="size-4 rounded-full border border-slate-300" />}
-                  <span className={i <= current ? "text-ink" : "text-slate-400"}>{s.label}</span>
+                <li key={s.label} className="flex items-center gap-2.5 text-sm">
+                  {i < current ? <Check className="size-4 text-sage" /> : i === current ? <Loader2 className="size-4 animate-spin text-lime" /> : <span className="size-4 rounded-full border border-sage/30" />}
+                  <span className={i <= current ? "text-sage" : "text-sage/55"}>{s.label}</span>
                 </li>
               ))}
             </ol>
-            <p className="mt-6 text-xs text-slate-400">Usually about a minute. This page updates by itself.</p>
+            <p className="mt-6 text-[13px] text-sage/60">Usually about a minute. This page updates by itself.</p>
           </>
         )}
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

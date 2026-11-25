@@ -4,13 +4,20 @@
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
   --font-serif: var(--font-newsreader), ui-serif, Georgia, serif;
-  --color-ink: #0f172a;
-  --color-muted: #64748b;
-  --color-line: #e2e8f0;
+  --color-forest: #143528;
+  --color-forest-deep: #0d261c;
+  --color-forest-mid: #2c6149;
+  --color-sage: #e2eadd;
+  --color-sage-deep: #cfdbc9;
+  --color-paper: #f3f6f0;
+  --color-lime: #cdf04a;
+  --color-ink: #10231a;
+  --color-muted: #55685d;
+  --color-line: #cdd8c8;
   --color-panel: #ffffff;
-  --color-canvas: #f2f4f7;
-  --color-brand: #2563eb;
-  --color-brand-soft: #eff6ff;
+  --color-canvas: #f3f6f0;
+  --color-brand: #2c6149;
+  --color-brand-soft: #e2eadd;
 }
 
 html,
@@ -30,7 +37,31 @@ body {
   margin-top: 0.5rem;
 }
 
+::selection {
+  background: var(--color-lime);
+  color: var(--color-ink);
+}
+
+.route-draw {
+  stroke-dashoffset: 0;
+  animation: route-draw 1.8s cubic-bezier(0.4, 0, 0.1, 1);
+}
+@keyframes route-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .route-draw {
+    animation: none;
+  }
+}
+
 @media print {
+  * {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
   .no-print {
     display: none !important;
   }
