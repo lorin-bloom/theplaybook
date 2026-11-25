@@ -29,9 +29,8 @@ export function MockCreative({ mock, brand, platform }: { mock: Mock; brand: str
             <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-3">
               <div className="line-clamp-2 text-sm font-semibold leading-snug text-white">{mock.headline}</div>
             </div>
-            <span className="absolute right-2 top-2 rounded bg-black/70 px-1.5 py-0.5 font-mono text-[10px] text-white">{mock.kind === "short_video" ? "0:45" : "8:42"}</span>
           </div>
-          <p className="mt-2 line-clamp-3 text-xs text-muted">{mock.body}</p>
+          <p className="mt-2 line-clamp-6 text-xs text-muted">{mock.body}</p>
         </div>
       );
     case "email":
@@ -40,7 +39,7 @@ export function MockCreative({ mock, brand, platform }: { mock: Mock; brand: str
           <div className="flex items-center gap-2 border-b border-line bg-paper px-3 py-2 text-xs text-muted"><Mail className="size-3.5" /> {brand}</div>
           <div className="p-3">
             <div className="text-sm font-semibold">{mock.headline}</div>
-            <p className="mt-1 line-clamp-4 text-xs leading-relaxed text-ink/75">{mock.body}</p>
+            <p className="mt-1 line-clamp-6 text-xs leading-relaxed text-ink/75">{mock.body}</p>
           </div>
         </div>
       );
@@ -53,7 +52,7 @@ export function MockCreative({ mock, brand, platform }: { mock: Mock; brand: str
           </div>
           <div className="p-3">
             <div className="text-sm font-semibold leading-snug">{mock.headline}</div>
-            <p className="mt-1 line-clamp-3 text-xs text-ink/75">{mock.body}</p>
+            <p className="mt-1 line-clamp-6 text-xs text-ink/75">{mock.body}</p>
           </div>
         </div>
       );
@@ -72,7 +71,7 @@ export function MockCreative({ mock, brand, platform }: { mock: Mock; brand: str
         <div className="rounded-md border border-line bg-white p-4 text-left">
           <div className="flex items-center gap-1.5 text-[11px] font-medium text-muted"><Newspaper className="size-3" /> {platform}</div>
           <div className="mt-1 font-serif text-lg leading-snug">{mock.headline}</div>
-          <p className="mt-1 line-clamp-3 text-xs text-ink/75">{mock.body}</p>
+          <p className="mt-1 line-clamp-6 text-xs text-ink/75">{mock.body}</p>
         </div>
       );
     case "ad":
@@ -80,7 +79,7 @@ export function MockCreative({ mock, brand, platform }: { mock: Mock; brand: str
         <div className="rounded-md bg-forest p-4 text-left">
           <div className="flex items-center gap-1 text-[11px] font-medium text-sage/60"><Megaphone className="size-3" /> Sponsored</div>
           <div className="mt-1 font-serif text-xl leading-tight text-sage">{mock.headline}</div>
-          <p className="mt-1 line-clamp-3 text-xs text-sage/75">{mock.body}</p>
+          <p className="mt-1 line-clamp-6 text-xs text-sage/75">{mock.body}</p>
         </div>
       );
     default:
@@ -94,7 +93,7 @@ export function MockCreative({ mock, brand, platform }: { mock: Mock; brand: str
             </div>
           </div>
           <div className="mt-2 text-sm font-semibold leading-snug">{mock.headline}</div>
-          <p className="mt-1 line-clamp-4 whitespace-pre-line text-xs leading-relaxed text-ink/75">{mock.body}</p>
+          <p className="mt-1 line-clamp-6 whitespace-pre-line text-xs leading-relaxed text-ink/75">{mock.body}</p>
           <div className="mt-2 flex gap-4 border-t border-line pt-2 text-muted">
             <Heart className="size-3.5" /> <MessageCircle className="size-3.5" /> <Repeat2 className="size-3.5" />
           </div>
